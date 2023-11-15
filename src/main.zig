@@ -1,24 +1,27 @@
-const std = @import("std");
+const w4 = @import("wasm4.zig");
 
-pub fn main() !void {
-    // Prints to stderr (it's a shortcut based on `std.io.getStdErr()`)
-    std.debug.print("All your {s} are belong to us.\n", .{"codebase"});
+const smiley = [8]u8{
+    0b11000011,
+    0b10000001,
+    0b00100100,
+    0b00100100,
+    0b00000000,
+    0b00100100,
+    0b10011001,
+    0b11000011,
+};
 
-    // stdout is for the actual output of your application, for example if you
-    // are implementing gzip, then only the compressed bytes should be sent to
-    // stdout, not any debugging messages.
-    const stdout_file = std.io.getStdOut().writer();
-    var bw = std.io.bufferedWriter(stdout_file);
-    const stdout = bw.writer();
+export fn start() void {}
 
-    try stdout.print("Run `zig build test` to run the tests.\n", .{});
+export fn update() void {
+    w4.DRAW_COLORS.* = 2;
+    w4.text("Hello from Zig!", 10, 10);
 
-    try bw.flush(); // don't forget to flush!
-}
+    const gamepad = w4.GAMEPAD1.*;
+    if (gamepad & w4.BUTTON_1 != 0) {
+        w4.DRAW_COLORS.* = 4;
+    }
 
-test "simple test" {
-    var list = std.ArrayList(i32).init(std.testing.allocator);
-    defer list.deinit(); // try commenting this out and see if zig detects the memory leak!
-    try list.append(42);
-    try std.testing.expectEqual(@as(i32, 42), list.pop());
+    w4.blit(&smiley, 76, 76, 8, 8, w4.BLIT_1BPP);
+    w4.text("Press X to blink", 16, 90);
 }
