@@ -140,3 +140,12 @@ extern fn traceUtf8(strPtr: [*]const u8, strLen: usize) void;
 /// See https://github.com/aduros/wasm4/issues/244 for discussion and type-safe
 /// alternatives.
 pub extern fn tracef(x: [*:0]const u8, ...) void;
+
+/// TODO: slice the buffer to the final printed size;
+pub fn print(comptime max_len: usize, comptime fmt: []const u8, args: anytype) void {
+  var str: [max_len]u8 = undefined;
+  var stream = std.io.fixedBufferStream(&str);
+  const writer = stream.writer();
+  writer.print(fmt, args) catch return trace("failed to print");
+  trace(&str);
+}
