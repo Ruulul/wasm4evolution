@@ -60,21 +60,9 @@ pub const MotorNeuron = enum(u8) {
   pub const count = nOfTags(MotorNeuron);
 };
 
-pub const Gene = [3]i8;
 
 pub const Synapse = struct {
   source: usize,
   target: usize,
   weight: f32,
-  pub fn getInfo(gene: Gene) struct{Neuron.TypeTag, Neuron.TypeTag, i8} {
-    const source_info: i8 = gene[0];
-    const target_info: i8 = gene[1];
-    const weight: i8 = gene[2];
-    const source_tag: u8 = @abs(source_info);
-    const target_tag: u8 = @abs(target_info);
-    const source = if (source_info > 0) Neuron.TypeTag{ .sensor = source_tag } else Neuron.TypeTag{ .intern = source_tag };
-    const target = if (target_info > 0) Neuron.TypeTag{ .intern = target_tag } else Neuron.TypeTag{ .motor = target_tag };
-
-    return .{ source, target, weight };
-  }
 };

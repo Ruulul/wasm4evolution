@@ -51,7 +51,7 @@ fn setup() void {
         creature.* = Creature.init(
             random.int(Creature.Position),
             random.int(Creature.Position),
-            Creature.getRandomDNA(random),
+            Creature.getRandomGenome(random),
         );
         food.* = .{
             .x = random.int(Creature.Position),

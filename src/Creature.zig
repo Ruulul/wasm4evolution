@@ -4,8 +4,9 @@ const Synapse = @import("neuron.zig").Synapse;
 const Neuron = @import("neuron.zig").Neuron;
 const SensorNeuron = @import("neuron.zig").SensorNeuron;
 const MotorNeuron = @import("neuron.zig").MotorNeuron;
-const Gene = @import("neuron.zig").Gene;
-const dna_length = 3;
+const Genome = @import("genome.zig").Genome;
+const getGeneInfo = @import("genome.zig").getInfo;
+const genome_length = @import("genome.zig").genome_length;
 
 pub const Creature = @This();
 pub const Position = u7;
@@ -19,20 +20,20 @@ pub const Direction = enum {
 x: Position = undefined,
 y: Position = undefined,
 forward: Direction = .right,
-dna: [dna_length]Gene = undefined,
+genome: Genome = undefined,
 brain: Brain = undefined,
 
-pub fn getRandomDNA(random: std.rand.Random) [dna_length]Gene {
-  var dna: [dna_length]Gene = undefined;
+pub fn getRandomGenome(random: std.rand.Random) Genome {
+  var dna: Genome = undefined;
   for (&dna) |*gene| random.bytes(@ptrCast(gene));
   return dna;
 }
-pub fn init(x: Position, y: Position, dna: [dna_length]Gene) Creature {
+pub fn init(x: Position, y: Position, genome: Genome) Creature {
   var self: Creature = .{};
   self.x = x;
   self.y = y;
-  self.dna = dna;
-  self.brain = Brain.init(dna);
+  self.genome = genome;
+  self.brain = Brain.init(genome);
   return self;
 }
 pub fn iterate(self: *Creature, random: std.rand.Random) void {
@@ -79,14 +80,14 @@ fn go(self: *Creature, direction: Direction) void {
   self.forward = direction;
 }
 pub const Brain = struct {
-    const Neurons = std.BoundedArray(Neuron, dna_length * 2);
+    const Neurons = std.BoundedArray(Neuron, genome_length * 2);
     neurons: Neurons = undefined,
-    synapses: [dna_length]Synapse = undefined,
-    pub fn init(dna: [dna_length]Gene) Brain {
+    synapses: [genome_length]Synapse = undefined,
+    pub fn init(genome: Genome) Brain {
       var self: Brain = .{};
       self.neurons = Neurons.init(0) catch unreachable;
-      for (dna, 0..) |gene, i| {
-        const info = Synapse.getInfo(gene);
+      for (genome, 0..) |gene, i| {
+        const info = getGeneInfo(gene);
         self.addSynapse(info, i);
       }
       return self;
