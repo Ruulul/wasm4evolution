@@ -4,8 +4,13 @@ const Creature = @import("Creature.zig");
 
 const fps = 6;
 
-const creature_count = 300;
-const Creatures = [creature_count]Creature;
+const max_entity_count = 300;
+const Creatures = std.BoundedArray(Creature, max_entity_count);
+const Food = struct {
+    x: Creature.Position,
+    y: Creature.Position,
+};
+const Foods  = std.BoundedArray(Food, max_entity_count);
 const IteratorCreaturesOnPosition = struct {
     index: usize = 0,
     x: Creature.Position,
@@ -14,9 +19,9 @@ const IteratorCreaturesOnPosition = struct {
         return .{ .x = x, .y = y };
     }
     fn next(self: *IteratorCreaturesOnPosition) ?usize {
-        if (self.index >= creature_count) return null;
-        return for (self.index..creature_count) |index| {
-            const creature = creatures[index];
+        if (self.index >= creatures.len) return null;
+        return for (self.index..creatures.len) |index| {
+            const creature = creatures.get(index);
             if (creature.x == self.x and creature.y == self.y) {
                 self.index = index + 1;
                 break index;
@@ -25,9 +30,10 @@ const IteratorCreaturesOnPosition = struct {
     }
 };
 
-var global_buffer: [48_000]u8 = undefined;
+var global_buffer: [30_000]u8 = undefined;
 var fba: std.heap.FixedBufferAllocator = std.heap.FixedBufferAllocator.init(&global_buffer);
 var creatures: Creatures = undefined;
+var foods: Foods = undefined;
 var rand: std.rand.Xoshiro256 = undefined;
 
 var started: bool = false;
@@ -39,12 +45,18 @@ fn setup() void {
     rand = std.rand.DefaultPrng.init(seed);
     const random = rand.random();    
 
-    for (0..creature_count) |i| {
-        creatures[i] = Creature.init(
-            random.int(u7),
-            random.int(u7),
+    creatures = Creatures.init(30) catch unreachable;
+    foods = Foods.init(30) catch unreachable;
+    for (creatures.slice(), foods.slice()) |*creature, *food| {
+        creature.* = Creature.init(
+            random.int(Creature.Position),
+            random.int(Creature.Position),
             Creature.getRandomDNA(random),
         );
+        food.* = .{
+            .x = random.int(Creature.Position),
+            .y = random.int(Creature.Position)
+        };
     }
 } 
 
@@ -59,10 +71,10 @@ export fn update() void {
     if (!started) {
         w4.text("Press Z to start!", 10, 10);
     } else {
+        w4.draw_colors.* = 0x4;
+        for (foods.slice()) |food| w4.rect(food.x, food.y, 1, 1);
         w4.draw_colors.* = 0x2;
-        for (0..creature_count) |i| {
-            var creature = &creatures[i];
-            //printBrain(creature);
+        for (creatures.slice()) |*creature| {
             w4.rect(creature.x, creature.y, 1, 1);
             if (seed % (60 / fps) == 0) creature.iterate(rand.random());
         }
