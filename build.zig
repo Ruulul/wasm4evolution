@@ -10,7 +10,7 @@ pub fn build(b: *std.Build) !void {
         .optimize = optimize,
     });
 
-    lib.strip = true;
+    lib.entry = .disabled;
     lib.initial_memory = 65536;
     lib.max_memory = 65536;
     lib.stack_size = 14752;
