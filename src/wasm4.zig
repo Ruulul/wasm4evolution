@@ -146,6 +146,9 @@ pub fn print(comptime max_len: usize, comptime fmt: []const u8, args: anytype) v
   var str: [max_len]u8 = undefined;
   var stream = std.io.fixedBufferStream(&str);
   const writer = stream.writer();
-  writer.print(fmt, args) catch return trace("failed to print");
+  writer.print(fmt, args) catch {
+    trace("failed to print:");
+    trace(fmt);
+  };
   trace(&str);
 }
