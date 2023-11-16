@@ -17,7 +17,7 @@ pub const screen_size: u32 = 160;
 // └───────────────────────────────────────────────────────────────────────────┘
 pub const pallete: *[4]u32 = @ptrFromInt(0x04);
 pub const draw_colors: *u16 = @ptrFromInt(0x14);
-pub const gamepad = [_]*u8 {
+pub const gamepad = [_]*u8{
     @ptrFromInt(0x16),
     @ptrFromInt(0x17),
     @ptrFromInt(0x18),
