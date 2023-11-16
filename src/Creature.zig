@@ -19,6 +19,7 @@ pub const Direction = enum {
 
 x: Position = undefined,
 y: Position = undefined,
+energy: u8 = 100,
 forward: Direction = .right,
 genome: Genome = undefined,
 brain: Brain = undefined,
@@ -37,6 +38,8 @@ pub fn init(x: Position, y: Position, genome: Genome) Creature {
   return self;
 }
 pub fn iterate(self: *Creature, random: std.rand.Random) void {
+  self.energy -|= 1;
+  if (self.energy == 0) return;
   self.senses(random);
   self.brain.think();
   self.act(random);
