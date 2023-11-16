@@ -50,6 +50,10 @@ pub const SensorNeuron = enum(u8) {
   pos_y,
   rand,
   oscillator,
+  food_fwrd,
+  food_lateral,
+  food_below,
+  own_energy,
   pub const count = nOfTags(SensorNeuron);
 };
 pub const MotorNeuron = enum(u8) {
@@ -57,6 +61,9 @@ pub const MotorNeuron = enum(u8) {
   go_y,
   go_rnd,
   go_fwrd,
+  rotate,
+  eat,
+  reproduce,
   pub const count = nOfTags(MotorNeuron);
 };
 

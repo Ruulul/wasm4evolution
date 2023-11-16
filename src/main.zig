@@ -1,11 +1,12 @@
 const std = @import("std");
 const w4 = @import("wasm4.zig");
 const Creature = @import("Creature.zig");
+const getRandomGenome = @import("genome.zig").getRandomGenome;
 const Position = Creature.Position;
 
 const fps = 6;
 
-const max_entity_count = 300;
+pub const max_entity_count = 300;
 const Creatures = [max_entity_count]Creature;
 const Food = struct {
     x: Position,
@@ -17,10 +18,10 @@ pub fn IteratorOnPosition (comptime array: anytype, comptime curr_len: *usize) t
         index: usize = 0,
         x: Creature.Position,
         y: Creature.Position,
-        pub fn init(x: Creature.Position, y: Creature.Position) IteratorOnPosition(array) {
+        pub fn init(x: Creature.Position, y: Creature.Position) IteratorOnPosition(array, curr_len) {
             return .{ .x = x, .y = y };
         }
-        pub fn next(self: *IteratorOnPosition(array)) ?usize {
+        pub fn next(self: *IteratorOnPosition(array, curr_len)) ?usize {
             if (self.index >= curr_len.*) return null;
             return for (self.index..curr_len.*) |index| {
                 const item = array[index];
@@ -34,10 +35,10 @@ pub fn IteratorOnPosition (comptime array: anytype, comptime curr_len: *usize) t
 }
 var global_buffer: [30_000]u8 = undefined;
 var fba: std.heap.FixedBufferAllocator = std.heap.FixedBufferAllocator.init(&global_buffer);
-var creatures: Creatures = undefined;
-var creatures_len: usize = 0;
-var foods: Foods = undefined;
-var foods_len: usize = 0;
+pub var creatures: Creatures = undefined;
+pub var creatures_len: usize = 0;
+pub var foods: Foods = undefined;
+pub var foods_len: usize = 0;
 var rand: std.rand.Xoshiro256 = undefined;
 
 var started: bool = false;
@@ -51,17 +52,20 @@ fn setup() void {
     creatures_len = 0;
     foods_len = 0;
 
-    for (creatures[0..30], foods[0..30]) |*creature, *food| {
+    for (creatures[0..100]) |*creature| {
         creature.* = Creature.init(
             random.int(Position),
             random.int(Position),
-            Creature.getRandomGenome(random),
+            getRandomGenome(random),
         );
+        creature.energy +|= random.int(u8);
+        creatures_len += 1;
+    }
+    for (foods[0..200]) |*food| {
         food.* = .{
             .x = random.int(Position),
             .y = random.int(Position)
         };
-        creatures_len += 1;
         foods_len += 1;
     }
 } 
@@ -73,12 +77,13 @@ export fn update() void {
     seed +%= 1;
     defer last_gamepad_state = w4.gamepad_1.*;
 
-    w4.draw_colors.* = 0x40;
-    w4.rect(-1, -1, 130, 130);
     w4.draw_colors.* = 0x2;
     if (!started) {
-        w4.text("Press Z to start!", 0, 10);
+        w4.text("Press Z to start!", 10, 10);
     } else {
+        if (creatures_len == 0) setup();
+        w4.draw_colors.* = 0x40;
+        w4.rect(-1, -1, 130, 130);
         w4.draw_colors.* = 0x4;
         for (foods[0..foods_len]) |food| w4.rect(food.x, food.y, 1, 1);
         w4.draw_colors.* = 0x2;
