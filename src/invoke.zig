@@ -19,6 +19,6 @@ pub fn main() !void {
         _ = try process.spawnAndWait();
         return;
     }
-    var process = std.ChildProcess.init(&.{ "w4", mode orelse "run", exe_path }, allocator);
+    var process = std.ChildProcess.init(&.{ "w4", mode orelse "run-native", exe_path }, allocator);
     _ = try process.spawnAndWait();
 }
