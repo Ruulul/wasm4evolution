@@ -12,7 +12,13 @@ pub fn main() !void {
     const exe_path = try std.mem.concat(allocator, u8, &.{ exe_folder, "/bin/cart.wasm" });
     defer allocator.free(exe_path);
 
+    if (args.len > 2) {
+        const concated_args = try std.mem.concat(allocator, []const u8, &.{ &.{ "w4", mode.?, exe_path }, args[2..] });
+        defer allocator.free(concated_args);
+        var process = std.ChildProcess.init(concated_args, allocator);
+        _ = try process.spawnAndWait();
+        return;
+    }
     var process = std.ChildProcess.init(&.{ "w4", mode orelse "run", exe_path }, allocator);
-    try process.spawn();
-    _ = try process.wait();
+    _ = try process.spawnAndWait();
 }

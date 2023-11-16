@@ -17,13 +17,10 @@ pub const screen_size: u32 = 160;
 // └───────────────────────────────────────────────────────────────────────────┘
 pub const pallete: *[4]u32 = @ptrFromInt(0x04);
 pub const draw_colors: *u16 = @ptrFromInt(0x14);
-pub const gamepad = [_]*u8{
-    @ptrFromInt(0x16),
-    @ptrFromInt(0x17),
-    @ptrFromInt(0x18),
-    @ptrFromInt(0x19),
-    @ptrFromInt(0x1a),
-};
+pub const gamepad_1: *u8 = @ptrFromInt(0x16);
+pub const gamepad_2: *u8 = @ptrFromInt(0x17);
+pub const gamepad_3: *u8 = @ptrFromInt(0x18);
+pub const gamepad_4: *u8 = @ptrFromInt(0x19);
 
 pub const mouse_left: u8 = 1 << 0;
 pub const mouse_right: u8 = 1 << 1;
@@ -46,10 +43,10 @@ pub const FRAMEBUFFER: *[6400]u8 = @ptrFromInt(0xA0);
 
 pub const button_1: u8 = 1 << 0;
 pub const button_2: u8 = 1 << 1;
-pub const button_left: u8 = 1 << 2;
-pub const button_right: u8 = 1 << 3;
-pub const button_up: u8 = 1 << 4;
-pub const button_down: u8 = 1 << 5;
+pub const button_left: u8 = 1 << 4;
+pub const button_right: u8 = 1 << 5;
+pub const button_up: u8 = 1 << 6;
+pub const button_down: u8 = 1 << 7;
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
 // │                                                                           │
