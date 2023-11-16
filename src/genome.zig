@@ -3,7 +3,6 @@ pub const Gene = [3]i8;
 pub const genome_length = 3;
 pub const Genome = [genome_length]Gene;
 
-
 pub fn getInfo(gene: Gene) struct{TypeTag, TypeTag, i8} {
   const source_info: i8 = gene[0];
   const target_info: i8 = gene[1];

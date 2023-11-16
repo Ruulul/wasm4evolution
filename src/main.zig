@@ -65,11 +65,13 @@ export fn start() void {}
 var last_gamepad_state: u8 = 0;
 export fn update() void {
     seed +%= 1;
-    w4.draw_colors.* = 0x2;
     defer last_gamepad_state = w4.gamepad_1.*;
 
+    w4.draw_colors.* = 0x40;
+    w4.rect(-1, -1, 130, 130);
+    w4.draw_colors.* = 0x2;
     if (!started) {
-        w4.text("Press Z to start!", 10, 10);
+        w4.text("Press Z to start!", 0, 10);
     } else {
         w4.draw_colors.* = 0x4;
         for (foods.slice()) |food| w4.rect(food.x, food.y, 1, 1);
