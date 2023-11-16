@@ -1,3 +1,4 @@
+const std = @import("std");
 //
 // WASM-4: https://wasm4.org/docs
 
@@ -7,40 +8,48 @@
 // │                                                                           │
 // └───────────────────────────────────────────────────────────────────────────┘
 
-pub const SCREEN_SIZE: u32 = 160;
+pub const screen_size: u32 = 160;
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
 // │                                                                           │
 // │ Memory Addresses                                                          │
 // │                                                                           │
 // └───────────────────────────────────────────────────────────────────────────┘
+pub const pallete: *[4]u32 = @ptrFromInt(0x04);
+pub const draw_colors: *u16 = @ptrFromInt(0x14);
+pub const gamepad = [_]*u8 {
+    @ptrFromInt(0x16),
+    @ptrFromInt(0x17),
+    @ptrFromInt(0x18),
+    @ptrFromInt(0x19),
+    @ptrFromInt(0x1a),
+};
 
-pub const PALETTE: *[4]u32 = @ptrFromInt(0x04);
-pub const DRAW_COLORS: *u16 = @ptrFromInt(0x14);
-pub const GAMEPAD1: *const u8 = @ptrFromInt(0x16);
-pub const GAMEPAD2: *const u8 = @ptrFromInt(0x17);
-pub const GAMEPAD3: *const u8 = @ptrFromInt(0x18);
-pub const GAMEPAD4: *const u8 = @ptrFromInt(0x19);
-pub const MOUSE_X: *const i16 = @ptrFromInt(0x1a);
-pub const MOUSE_Y: *const i16 = @ptrFromInt(0x1c);
-pub const MOUSE_BUTTONS: *const u8 = @ptrFromInt(0x1e);
+pub const mouse_left: u8 = 1 << 0;
+pub const mouse_right: u8 = 1 << 1;
+pub const mouse_middle: u8 = 1 << 2;
+pub const mouse = struct {
+    pub const x: *const i16 = @ptrFromInt(0x1a);
+    pub const y: *const i16 = @ptrFromInt(0x1c);
+    pub const buttons: *const u8 = @ptrFromInt(0x1e);
+};
+pub const system_flags = struct {
+    pub const state: *u8 = @ptrFromInt(0x1f);
+    pub const value = enum(u8) {
+        system_preserve_framebuffer = 1 << 0,
+        system_hide_gamepad_overlay = 1 << 1,
+    };
+};
 pub const SYSTEM_FLAGS: *u8 = @ptrFromInt(0x1f);
 pub const NETPLAY: *const u8 = @ptrFromInt(0x20);
 pub const FRAMEBUFFER: *[6400]u8 = @ptrFromInt(0xA0);
 
-pub const BUTTON_1: u8 = 1;
-pub const BUTTON_2: u8 = 2;
-pub const BUTTON_LEFT: u8 = 16;
-pub const BUTTON_RIGHT: u8 = 32;
-pub const BUTTON_UP: u8 = 64;
-pub const BUTTON_DOWN: u8 = 128;
-
-pub const MOUSE_LEFT: u8 = 1;
-pub const MOUSE_RIGHT: u8 = 2;
-pub const MOUSE_MIDDLE: u8 = 4;
-
-pub const SYSTEM_PRESERVE_FRAMEBUFFER: u8 = 1;
-pub const SYSTEM_HIDE_GAMEPAD_OVERLAY: u8 = 2;
+pub const button_1: u8 = 1 << 0;
+pub const button_2: u8 = 1 << 1;
+pub const button_left: u8 = 1 << 2;
+pub const button_right: u8 = 1 << 3;
+pub const button_up: u8 = 1 << 4;
+pub const button_down: u8 = 1 << 5;
 
 // ┌───────────────────────────────────────────────────────────────────────────┐
 // │                                                                           │
