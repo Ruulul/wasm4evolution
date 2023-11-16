@@ -43,8 +43,11 @@ var rand: std.rand.Xoshiro256 = undefined;
 
 var started: bool = false;
 var seed: u64 = 0;
+var generation: u64 = 0;
 
 fn setup() void {
+    w4.print(20, "collony {}", .{generation});
+    generation += 1;
     started = true;
 
     rand = std.rand.DefaultPrng.init(seed);

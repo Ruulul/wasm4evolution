@@ -1,12 +1,9 @@
 const w4 = @import("wasm4.zig");
 const std = @import("std");
-const Synapse = @import("neuron.zig").Synapse;
-const Neuron = @import("neuron.zig").Neuron;
+const Brain = @import("Brain.zig");
 const SensorNeuron = @import("neuron.zig").SensorNeuron;
 const MotorNeuron = @import("neuron.zig").MotorNeuron;
 const Genome = @import("genome.zig").Genome;
-const getGeneInfo = @import("genome.zig").getInfo;
-const genome_length = @import("genome.zig").genome_length;
 
 const max_entities = @import("main.zig").max_entity_count;
 const foods = &@import("main.zig").foods;
@@ -211,44 +208,3 @@ fn go(self: *Creature, direction: Direction) void {
   }
   self.forward = direction;
 }
-pub const Brain = struct {
-    const Neurons = std.BoundedArray(Neuron, genome_length * 2);
-    neurons: Neurons = undefined,
-    synapses: [genome_length]Synapse = undefined,
-    pub fn init(genome: Genome) Brain {
-      var self: Brain = .{};
-      self.neurons = Neurons.init(0) catch unreachable;
-      for (genome, 0..) |gene, i| {
-        const info = getGeneInfo(gene);
-        self.addSynapse(info, i);
-      }
-      return self;
-    }
-    pub fn think(self: *Brain) void {
-      for (self.synapses) |synapse| {
-        self.neurons.buffer[synapse.target].input += 
-        self.neurons.buffer[synapse.source].value * synapse.weight;
-      }
-      for (self.neurons.slice()) |*neuron| neuron.activate();
-    }
-    fn addSynapse(self: *Brain, info: struct {Neuron.TypeTag, Neuron.TypeTag, i8}, index: usize) void {
-      const source_type = info[0];
-      const target_type = info[1];
-      const source_neuron = self.findOrAddNeuron(source_type);
-      const target_neuron = self.findOrAddNeuron(target_type);
-      self.synapses[index] = Synapse{
-        .source = source_neuron,
-        .target = target_neuron,
-        .weight = @as(f32, @floatFromInt( info[2])) / 31,
-      };
-    }
-    fn findOrAddNeuron(self: *Brain, type_tag: Neuron.TypeTag) usize {
-      const neurons = self.neurons.slice();
-      return for (neurons, 0..) |neuron, i| {
-        if (neuron.type_tag.sameKind(type_tag)) break i;
-      } else blk: {
-        self.neurons.appendAssumeCapacity(Neuron{.type_tag = type_tag,});
-        break :blk neurons.len;
-      };
-    }
-  };
