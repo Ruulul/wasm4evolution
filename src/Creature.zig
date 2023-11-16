@@ -111,7 +111,7 @@ pub const Brain = struct {
     }
     fn findOrAddNeuron(self: *Brain, type_tag: Neuron.TypeTag) usize {
       const neurons = self.neurons.slice();
-      return for (neurons, 0..) |*neuron, i| {
+      return for (neurons, 0..) |neuron, i| {
         if (neuron.type_tag.sameKind(type_tag)) break i;
       } else blk: {
         self.neurons.appendAssumeCapacity(Neuron{.type_tag = type_tag,});
