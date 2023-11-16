@@ -2,8 +2,28 @@ const std = @import("std");
 const w4 = @import("wasm4.zig");
 const Creature = @import("Creature.zig");
 
+const fps = 6;
+
 const creature_count = 300;
 const Creatures = [creature_count]Creature;
+const IteratorCreaturesOnPosition = struct {
+    index: usize = 0,
+    x: Creature.Position,
+    y: Creature.Position,
+    fn init(x: Creature.Position, y: Creature.Position) IteratorCreaturesOnPosition {
+        return .{ .x = x, .y = y };
+    }
+    fn next(self: *IteratorCreaturesOnPosition) ?usize {
+        if (self.index >= creature_count) return null;
+        return for (self.index..creature_count) |index| {
+            const creature = creatures[index];
+            if (creature.x == self.x and creature.y == self.y) {
+                self.index = index + 1;
+                break index;
+            }
+        } else null;
+    }
+};
 
 var global_buffer: [48_000]u8 = undefined;
 var fba: std.heap.FixedBufferAllocator = std.heap.FixedBufferAllocator.init(&global_buffer);
@@ -44,7 +64,7 @@ export fn update() void {
             var creature = &creatures[i];
             //printBrain(creature);
             w4.rect(creature.x, creature.y, 1, 1);
-            creature.iterate(rand.random());
+            if (seed % (60 / fps) == 0) creature.iterate(rand.random());
         }
     }
     if ((last_gamepad_state ^ w4.gamepad_1.*) & w4.button_2 != 0) setup();

@@ -48,6 +48,8 @@ pub const Neuron = struct {
 pub const SensorNeuron = enum(u8) {
   pos_x,
   pos_y,
+  rand,
+  oscillator,
   pub const count = nOfTags(SensorNeuron);
 };
 pub const MotorNeuron = enum(u8) {

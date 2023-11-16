@@ -36,19 +36,21 @@ pub fn init(x: Position, y: Position, dna: [dna_length]Gene) Creature {
   return self;
 }
 pub fn iterate(self: *Creature, random: std.rand.Random) void {
-  self.senses();
+  self.senses(random);
   self.brain.think();
   self.act(random);
 }
-fn senses(self: *Creature) void {
+fn senses(self: *Creature, random: std.rand.Random) void {
   for (self.brain.neurons.slice()) |*neuron| {
     if (neuron.type_tag != .sensor) continue;
-    switch (@as(SensorNeuron, @enumFromInt(neuron.type_tag.getNeuronId()))) {
-      .pos_x => neuron.value = @as(f32, @floatFromInt(self.x)) 
+    neuron.value = switch (@as(SensorNeuron, @enumFromInt(neuron.type_tag.getNeuronId()))) {
+      .pos_x => @as(f32, @floatFromInt(self.x)) 
       / @as(f32, @floatFromInt(w4.screen_size)),
-      .pos_y => neuron.value = @as(f32, @floatFromInt(self.y))
+      .pos_y => @as(f32, @floatFromInt(self.y))
       / @as(f32, @floatFromInt(w4.screen_size)),
-    }
+      .rand => random.float(f32),
+      .oscillator => @bitCast(@as(u32, @bitCast(neuron.value)) +% 1),
+    };
   }
 }
 fn act(self: *Creature, random: std.rand.Random) void {
