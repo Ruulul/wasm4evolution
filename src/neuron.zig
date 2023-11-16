@@ -53,10 +53,8 @@ pub const SensorNeuron = enum(u8) {
   pub const count = nOfTags(SensorNeuron);
 };
 pub const MotorNeuron = enum(u8) {
-  go_up,
-  go_down,
-  go_left,
-  go_right,
+  go_x,
+  go_y,
   go_rnd,
   go_fwrd,
   pub const count = nOfTags(MotorNeuron);

@@ -58,14 +58,12 @@ fn act(self: *Creature, random: std.rand.Random) void {
     switch (neuron.type_tag) {
       .motor => {
         const neuron_kind: MotorNeuron = @enumFromInt(neuron.type_tag.getNeuronId());
-        if (neuron.value > 0) switch (neuron_kind) {
-          .go_up => self.go(.up),
-          .go_down => self.go(.down),
-          .go_left => self.go(.left),
-          .go_right => self.go(.right),
-          .go_rnd => self.go(random.enumValue(Direction)),
-          .go_fwrd => self.go(self.forward),
-        };
+        switch (neuron_kind) {
+          .go_x => self.x += @intFromFloat(std.math.sign(neuron.value)),
+          .go_y => self.y += @intFromFloat(std.math.sign(neuron.value)),
+          .go_rnd => if (neuron.value > 0) self.go(random.enumValue(Direction)),
+          .go_fwrd => if (neuron.value > 0) self.go(self.forward),
+        }
       },
       inline else => {}
     }
