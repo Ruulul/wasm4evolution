@@ -160,14 +160,20 @@ pub extern fn tracef(x: [*:0]const u8, ...) void;
 /// pub fn format(value: ?, comptime fmt: []const u8, options: std.fmt.FormatOptions, writer: anytype) !void
 /// ```
 /// where ? is the custom type.
-pub fn print(comptime extra_len: comptime_int, comptime fmt: []const u8, args: anytype) void {
+pub fn print(comptime extra_len: comptime_int, comptime fmt: []const u8, args: anytype) !void {
     var str = [_]u8{0} ** (@as(comptime_int, fmt.len) + extra_len);
-    var stream = std.io.fixedBufferStream(&str);
-    const writer = stream.writer();
-    writer.print(fmt, args) catch |err| {
-        trace("failed to print:");
-        trace(@errorName(err));
-        trace(fmt);
-    };
+    try printBuffer(&str, fmt, args);
     trace(&str);
+}
+
+pub fn textPrint(comptime extra_len: comptime_int, comptime fmt: []const u8, x: i32, y: i32, args: anytype) !void {
+    var str = [_]u8{0} ** (@as(comptime_int, fmt.len) + extra_len);
+    try printBuffer(&str, fmt, args);
+    text(&str, x, y);
+}
+
+pub fn printBuffer(buffer: []u8, comptime fmt: []const u8, args: anytype) !void {
+    var stream = std.io.fixedBufferStream(buffer);
+    const writer = stream.writer();
+    try writer.print(fmt, args);
 }
