@@ -68,9 +68,7 @@ pub fn init(x: Position, y: Position, genome: Genome) Creature {
     return self;
 }
 pub fn iterate(self: *Creature) void {
-    const random = global_state.rand.random();
     self.energy -|= global_state.energy_loss_per_iteration;
-    //self.iterations +|= 1;
     if (self.energy == 0 and self.chomps > global_state.chomps_to_be_selected) {
         w4.print(0, "creature {} met criteria", .{self.index()});
         const fitness_info = global_state.GenomeWithFitness{
@@ -86,10 +84,6 @@ pub fn iterate(self: *Creature) void {
                     fitting_genome.* = fitness_info;
                     break;
                 }
-                if (fitness_info.fitness == fitting_genome.*.?.fitness) {
-                    if (random.boolean()) fitting_genome.* = fitness_info;
-                    break;
-                } else continue;
             } else w4.print(0, "but creature {} wasnt selected", .{self.index()});
         }
     }
@@ -217,7 +211,6 @@ fn replicates(self: *Creature) void {
     const random = global_state.rand.random();
     if (self.energy < std.math.maxInt(@TypeOf(self.energy)) / 2) return;
     if (global_state.creatures_len == global_state.max_creature_count) return;
-    w4.trace("replicatin");
     self.energy = self.energy / 2 - global_state.energy_loss_per_replication;
     var self_copy = genome_file.mutates(self.genome, random);
     var offspring = self.*;
