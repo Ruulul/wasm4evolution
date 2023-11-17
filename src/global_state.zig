@@ -1,4 +1,5 @@
 const std = @import("std");
+const Genome = @import("genome.zig").Genome;
 pub const Creature = @import("Creature.zig");
 pub const Position = Creature.Position;
 
@@ -16,6 +17,14 @@ pub var creatures: Creatures = undefined;
 pub var creatures_len: usize = 0;
 pub var foods: Foods = undefined;
 pub var foods_len: usize = 0;
+
+pub const GenomeWithFitness = struct {
+    genome: Genome,
+    fitness: u64,
+};
+pub const max_fitting_genomes = 10;
+pub var most_fitting_genomes = [_]?GenomeWithFitness{ null} ** max_fitting_genomes;
+pub var most_fitting_genomes_len: usize = 0;
 
 pub var rand: std.rand.Xoshiro256 = undefined;
 pub var seed: u64 = 0;

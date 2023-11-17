@@ -9,7 +9,20 @@ pub fn getRandomGenome(random: std.rand.Random) Genome {
   for (&dna) |*gene| random.bytes(@ptrCast(gene));
   return dna;
 }
-
+pub fn mutates(original: Genome, random: std.rand.Random) Genome {
+  var new = original;
+  for (&new) |*gene| {
+    if (random.uintLessThan(u8, 100) <= 1) {
+      const synapse = random.uintLessThan(usize, 3);
+      const bit_to_fuzzle = random.uintAtMost(u3, 7);
+      const bit_mask = @as(i8, 1) << bit_to_fuzzle;
+      if (gene[synapse] & bit_mask != 0) 
+        gene[synapse] |= bit_mask
+      else gene[synapse] &= ~bit_mask;
+    }
+  }
+  return new;
+}
 pub fn getInfo(gene: Gene) struct{TypeTag, TypeTag, i8} {
   const source_info: i8 = gene[0];
   const target_info: i8 = gene[1];

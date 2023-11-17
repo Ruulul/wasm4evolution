@@ -1,27 +1,36 @@
 const std = @import("std");
 const w4 = @import("wasm4.zig");
 const Creature = @import("Creature.zig");
-const getRandomGenome = @import("genome.zig").getRandomGenome;
+const genome_file = @import("genome.zig");
+const getRandomGenome = genome_file.getRandomGenome;
+const mutates = genome_file.mutates;
 const Position = Creature.Position;
 
 const global_state = @import("global_state.zig");
-const fps = 6;
+const fps = 60;
 
 var started: bool = false;
 
 fn setup() void {
     started = true;
+    w4.trace("new generation");
 
     global_state.rand = std.rand.DefaultPrng.init(global_state.seed);
     const random = global_state.rand.random(); 
     global_state.creatures_len = 0;
     global_state.foods_len = 0;
 
-    for (global_state.creatures[0..100]) |*creature| {
+    for (global_state.creatures[0..100], 0..) |*creature, i| {
+        const most_fitting_genome_from_previous_generation = 
+            if (global_state.most_fitting_genomes[i % global_state.max_fitting_genomes]) |info|
+                info.genome
+            else null;
         creature.* = Creature.init(
             random.int(Position),
             random.int(Position),
-            getRandomGenome(random),
+            if (most_fitting_genome_from_previous_generation) |genome|
+                mutates(genome, random) 
+            else getRandomGenome(random),
         );
         creature.energy +|= random.int(u8);
         global_state.creatures_len += 1;
@@ -37,10 +46,8 @@ fn setup() void {
 
 export fn start() void {}
 
-var last_gamepad_state: u8 = 0;
 export fn update() void {
     global_state.seed +%= 1;
-    defer last_gamepad_state = w4.gamepad_1.*;
 
     w4.draw_colors.* = 0x2;
     if (!started) {
@@ -70,7 +77,7 @@ export fn update() void {
             i += 1;
         }
     }
-    if ((last_gamepad_state ^ w4.gamepad_1.*) & w4.button_2 != 0) setup();
+    if (!started and w4.gamepad_1.* & w4.button_2 != 0) setup();
 }
 
 fn printBrain(creature: *const Creature) void {

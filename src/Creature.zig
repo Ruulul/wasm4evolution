@@ -55,6 +55,7 @@ energy: u8 = 100,
 forward: Direction = .right,
 genome: Genome = undefined,
 iterations: u32 = 0,
+chomps: u32 = 0,
 brain: Brain = undefined,
 
 
@@ -69,9 +70,27 @@ pub fn init(x: Position, y: Position, genome: Genome) Creature {
 pub fn iterate(self: *Creature, random: std.rand.Random) void {
   self.energy -|= 1;
   self.iterations +|= 1;
-  if (self.energy == 0) {
-    const index = @intFromPtr(self) - @intFromPtr(&global_state.creatures);
-    _ = index;
+  if (self.energy == 0 and self.chomps > 2) {
+    w4.trace("met selection criteria");
+    const fitness_info = global_state.GenomeWithFitness{
+      .fitness = self.iterations,
+      .genome = self.genome,
+    };
+    if (global_state.most_fitting_genomes_len < global_state.max_fitting_genomes) {
+      global_state.most_fitting_genomes[global_state.most_fitting_genomes_len] = fitness_info;
+      global_state.most_fitting_genomes_len += 1;
+    } else {
+      for (&global_state.most_fitting_genomes) |*fitting_genome| {
+        if (self.iterations > fitting_genome.*.?.fitness) {
+          fitting_genome.* = fitness_info;
+          break;
+        } 
+        if (self.iterations == fitting_genome.*.?.fitness) {
+          if (random.boolean()) fitting_genome.* = fitness_info;
+          break;
+        } else continue;
+      }
+    }
     return;
   }
   self.senses(random);
@@ -164,6 +183,7 @@ fn act(self: *Creature, random: std.rand.Random) void {
           .eat => {
             var iterator = IterateOnFood.init(self.x, self.y);
             while (iterator.next()) |i| {
+              self.chomps += 1;
               self.energy += 50;
               global_state.foods[i] = global_state.foods[global_state.foods_len - 1];
               global_state.foods_len -= 1;
@@ -180,17 +200,7 @@ fn act(self: *Creature, random: std.rand.Random) void {
 fn replicates(self: *Creature, random: std.rand.Random) void {
   if (global_state.creatures_len == global_state.max_entity_count) return w4.trace("failed to reproduce");
   self.energy /= 2;
-  var self_copy = self.genome;
-  for (&self_copy) |*gene| {
-    if (random.uintLessThan(u8, 100) <= 1) {
-      const synapse = random.uintLessThan(usize, 3);
-      const bit_to_fuzzle = random.uintAtMost(u3, 7);
-      const bit_mask = @as(i8, 1) << bit_to_fuzzle;
-      if (gene[synapse] & bit_mask != 0) 
-        gene[synapse] |= bit_mask
-      else gene[synapse] &= ~bit_mask;
-    }
-  }
+  var self_copy = genome_file.mutates(self.genome, random);
   var creature = Creature.init(self.x, self.y, self_copy);
   creature.go(random.enumValue(Direction));
   global_state.creatures[global_state.creatures_len] = creature;
