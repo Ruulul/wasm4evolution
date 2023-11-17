@@ -70,7 +70,7 @@ pub fn init(x: Position, y: Position, genome: Genome) Creature {
 pub fn iterate(self: *Creature) void {
     self.energy -|= global_state.energy_loss_per_iteration;
     self.iterations +|= 1;
-    if (self.energy == 0 and self.chomps > global_state.chomps_to_be_selected) {
+    if (self.energy == 0 and self.chomps >= global_state.chomps_to_be_selected) {
         const fitness_info = global_state.GenomeWithFitness{
             .fitness = self.iterations,
             .genome = self.genome,
@@ -113,55 +113,10 @@ fn senses(self: *Creature) void {
                 if (iterator.next()) |_| break :blk 1;
                 break :blk 0;
             },
-            .food_fwrd => blk: {
-                var position = struct {
-                    x: Position,
-                    y: Position,
-                }{ .x = self.x, .y = self.y };
-                for (1..global_state.fov + 1) |distance| {
-                  switch (self.forward) {
-                        .up => position.y -%= 1,
-                        .down => position.y +%= 1,
-                        .right => position.x +%= 1,
-                        .left => position.x -%= 1,
-                    }
-                    var iterator = IterateOnFood.init(position.x, position.y);
-                    if (iterator.next()) |_| break :blk 1.0 / @as(f32, @floatFromInt(distance));
-                }
-                break :blk 0;
-            },
+            .food_fwrd => if (self.seeFood(self.forward)) |distance| @as(f32, 1.0)/distance else 0,
             .food_lateral => blk: {
-                var position: struct {
-                    x: Position,
-                    y: Position,
-                } = undefined;
-                const from_left = blk_left: {
-                    position = .{ .x = self.x, .y = self.y };
-                    for (1..global_state.fov + 1) |distance| {
-                        switch (self.forward.rotate(-1)) {
-                            .up => position.y -%= 1,
-                            .down => position.y +%= 1,
-                            .right => position.x +%= 1,
-                            .left => position.x -%= 1,
-                        }                        var iterator = IterateOnFood.init(position.x, position.y);
-                        if (iterator.next()) |_| break :blk_left 1.0 / @as(f32, @floatFromInt(distance));
-                    }
-                    break :blk_left 0;
-                };
-                const from_right = blk_right: {
-                    position = .{ .x = self.x, .y = self.y };
-                    for (1..10) |distance| {
-                        switch (self.forward.rotate(1)) {
-                            .up => position.y -%= 1,
-                            .down => position.y +%= 1,
-                            .right => position.x +%= 1,
-                            .left => position.x -%= 1,
-                        }
-                        var iterator = IterateOnFood.init(position.x, position.y);
-                        if (iterator.next()) |_| break :blk_right 1.0 / @as(f32, @floatFromInt(distance));
-                    }
-                    break :blk_right 0;
-                };
+                const from_left = self.seeFood(self.forward(-1)) orelse 0;
+                const from_right = self.seeFood(self.forward.rotate(1)) orelse 0;
                 break :blk if (from_right > from_left)
                     from_right
                 else
@@ -170,6 +125,25 @@ fn senses(self: *Creature) void {
             .own_energy => @as(f32, @floatFromInt(self.energy)) / 100,
         };
     }
+}
+fn seeFood(self: Creature, direction: Direction) ?usize {
+  var position = struct {
+      x: Position,
+      y: Position,
+  }{ .x = self.x, .y = self.y };
+  return for (1..global_state.fov + 1) |distance| {
+    switch (direction) {
+          .up => position.y -%= 1,
+          .down => position.y +%= 1,
+          .right => position.x +%= 1,
+          .left => position.x -%= 1,
+      }
+      if (
+        IterateOnFood
+          .init(position.x, position.y)
+          .peek()
+        ) |_| break distance;
+  } else null;
 }
 fn act(self: *Creature) void {
     const random = global_state.rand.random();
