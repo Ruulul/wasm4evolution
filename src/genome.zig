@@ -6,8 +6,11 @@ pub const Genome = [config.genome_length]Gene;
 
 pub fn getRandomGenome(random: std.rand.Random) Genome {
     var dna: Genome = undefined;
-    for (&dna) |*gene| random.bytes(@ptrCast(gene));
+    for (&dna) |*gene| randomGene(gene, random);
     return dna;
+}
+pub fn randomGene(gene: *Gene, random: std.rand.Random) void {
+    random.bytes(@ptrCast(gene));
 }
 pub fn mutates(original: Genome, random: std.rand.Random) Genome {
     var new = original;
