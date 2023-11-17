@@ -170,7 +170,6 @@ fn act(self: *Creature, random: std.rand.Random) void {
           .eat => {
             var iterator = IterateOnFood.init(self.x, self.y);
             while (iterator.next()) |i| {
-              w4.trace("chomp");
               self.energy += 50;
               foods[i] = foods[foods_len.* - 1];
               foods_len.* -= 1;
