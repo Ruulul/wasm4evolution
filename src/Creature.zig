@@ -113,41 +113,37 @@ fn senses(self: *Creature) void {
                 if (iterator.next()) |_| break :blk 1;
                 break :blk 0;
             },
-            .food_fwrd => if (self.seeFood(self.forward)) |distance| 
-              1.0/@as(f32, @floatFromInt(distance))
-            else 
-              0,
+            .food_fwrd => if (self.seeFood(self.forward)) |distance|
+                1.0 / @as(f32, @floatFromInt(distance))
+            else
+                0,
             .food_lateral => blk: {
                 const from_left = @as(f32, @floatFromInt(self.seeFood(self.forward.rotate(-1)) orelse 0));
                 const from_right = @as(f32, @floatFromInt(self.seeFood(self.forward.rotate(1)) orelse 0));
-                break :blk if (from_right > from_left) 
-                    if (from_right != 0) 1.0/from_right else 0
-                
-                else 
-                    if (from_right != 0) -1.0/from_left else 0;
+                break :blk if (from_right > from_left)
+                    if (from_right != 0) 1.0 / from_right else 0
+                else if (from_right != 0) -1.0 / from_left else 0;
             },
             .own_energy => @as(f32, @floatFromInt(self.energy)) / 100,
         };
     }
 }
 fn seeFood(self: Creature, direction: Direction) ?usize {
-  var position = struct {
-      x: Position,
-      y: Position,
-  }{ .x = self.x, .y = self.y };
-  return for (1..global_state.fov + 1) |distance| {
-    switch (direction) {
-          .up => position.y -%= 1,
-          .down => position.y +%= 1,
-          .right => position.x +%= 1,
-          .left => position.x -%= 1,
-      }
-      if (
-        IterateOnFood
-          .init(position.x, position.y)
-          .peek()
-        ) |_| break distance;
-  } else null;
+    var position = struct {
+        x: Position,
+        y: Position,
+    }{ .x = self.x, .y = self.y };
+    return for (1..global_state.fov + 1) |distance| {
+        switch (direction) {
+            .up => position.y -%= 1,
+            .down => position.y +%= 1,
+            .right => position.x +%= 1,
+            .left => position.x -%= 1,
+        }
+        if (IterateOnFood
+            .init(position.x, position.y)
+            .peek()) |_| break distance;
+    } else null;
 }
 fn act(self: *Creature) void {
     const random = global_state.rand.random();
