@@ -71,7 +71,6 @@ pub fn iterate(self: *Creature) void {
     self.energy -|= global_state.energy_loss_per_iteration;
     self.iterations +|= 1;
     if (self.energy == 0 and self.chomps > global_state.chomps_to_be_selected) {
-        w4.print(0, "creature {} met criteria", .{self.index()});
         const fitness_info = global_state.GenomeWithFitness{
             .fitness = self.iterations,
             .genome = self.genome,
@@ -87,7 +86,7 @@ pub fn iterate(self: *Creature) void {
                 } else if (fitness_info.fitness == fitting_genome.*.?.fitness and global_state.rand.random().boolean()) {
                   fitting_genome.* = fitness_info;
                 }
-            } else w4.print(0, "but creature {} wasnt selected", .{self.index()});
+            }
         }
     }
     if (self.energy == 0) {
