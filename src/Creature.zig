@@ -113,14 +113,18 @@ fn senses(self: *Creature) void {
                 if (iterator.next()) |_| break :blk 1;
                 break :blk 0;
             },
-            .food_fwrd => if (self.seeFood(self.forward)) |distance| @as(f32, 1.0)/distance else 0,
+            .food_fwrd => if (self.seeFood(self.forward)) |distance| 
+              1.0/@as(f32, @floatFromInt(distance))
+            else 
+              0,
             .food_lateral => blk: {
-                const from_left = self.seeFood(self.forward(-1)) orelse 0;
-                const from_right = self.seeFood(self.forward.rotate(1)) orelse 0;
-                break :blk if (from_right > from_left)
-                    from_right
-                else
-                    -from_left;
+                const from_left = @as(f32, @floatFromInt(self.seeFood(self.forward.rotate(-1)) orelse 0));
+                const from_right = @as(f32, @floatFromInt(self.seeFood(self.forward.rotate(1)) orelse 0));
+                break :blk if (from_right > from_left) 
+                    if (from_right != 0) 1.0/from_right else 0
+                
+                else 
+                    if (from_right != 0) -1.0/from_left else 0;
             },
             .own_energy => @as(f32, @floatFromInt(self.energy)) / 100,
         };
