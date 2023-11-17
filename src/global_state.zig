@@ -36,13 +36,15 @@ pub fn IteratorOnPosition (comptime array: anytype, comptime curr_len: *usize) t
             return .{ .x = x, .y = y };
         }
         pub fn next(self: *IteratorOnPosition(array, curr_len)) ?usize {
+            const last_idx = self.peek() orelse return null;
+            self.index = last_idx + 1;
+            return last_idx;
+        }
+        pub fn peek(self: IteratorOnPosition(array, curr_len)) ?usize {
             if (self.index >= curr_len.*) return null;
             return for (self.index..curr_len.*) |index| {
                 const item = array[index];
-                if (item.x == self.x and item.y == self.y) {
-                    self.index = index + 1;
-                    break index;
-                }
+                if (item.x == self.x and item.y == self.y) break index;
             } else null;
         }
     };
