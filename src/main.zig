@@ -16,32 +16,31 @@ fn setup() void {
     w4.trace("new generation");
 
     global_state.rand = std.rand.DefaultPrng.init(global_state.seed);
-    const random = global_state.rand.random(); 
+    const random = global_state.rand.random();
     global_state.creatures_len = 0;
     global_state.foods_len = 0;
 
     for (global_state.creatures[0..global_state.initial_creature_count], 0..) |*creature, i| {
-        const most_fitting_genome_from_previous_generation = 
+        const most_fitting_genome_from_previous_generation =
             if (global_state.most_fitting_genomes[i % global_state.max_fitting_genomes]) |info|
-                info.genome
-            else null;
+            info.genome
+        else
+            null;
         creature.* = Creature.init(
             random.int(Position),
             random.int(Position),
             if (most_fitting_genome_from_previous_generation) |genome|
-                mutates(genome, random) 
-            else getRandomGenome(random),
+                mutates(genome, random)
+            else
+                getRandomGenome(random),
         );
         global_state.creatures_len += 1;
     }
     for (global_state.foods[0..global_state.initial_food_count]) |*food| {
-        food.* = .{
-            .x = random.int(Position),
-            .y = random.int(Position)
-        };
+        food.* = .{ .x = random.int(Position), .y = random.int(Position) };
         global_state.foods_len += 1;
     }
-} 
+}
 
 export fn start() void {}
 
@@ -56,9 +55,8 @@ export fn update() void {
         w4.draw_colors.* = 0x40;
         w4.rect(-1, -1, 130, 130);
         w4.draw_colors.* = 0x4;
-        if (global_state.seed % global_state.spawn_food_interval == 0 and 
-            global_state.foods_len < global_state.max_food_count
-        ) spawnFood(); 
+        if (global_state.seed % global_state.spawn_food_interval == 0 and
+            global_state.foods_len < global_state.max_food_count) spawnFood();
         for (global_state.foods[0..global_state.foods_len]) |food| w4.rect(food.x, food.y, 1, 1);
         w4.draw_colors.* = 0x2;
         var i: usize = 0;

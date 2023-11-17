@@ -10,7 +10,7 @@ pub const Food = struct {
     x: Position,
     y: Position,
 };
-pub const Foods  = [config.max_food_count]Food;
+pub const Foods = [config.max_food_count]Food;
 
 pub var creatures: Creatures = undefined;
 pub var creatures_len: usize = 0;
@@ -21,13 +21,13 @@ pub const GenomeWithFitness = struct {
     genome: Genome,
     fitness: u64,
 };
-pub var most_fitting_genomes = [_]?GenomeWithFitness{ null} ** config.max_fitting_genomes;
+pub var most_fitting_genomes = [_]?GenomeWithFitness{null} ** config.max_fitting_genomes;
 pub var most_fitting_genomes_len: usize = 0;
 
 pub var rand: std.rand.Xoshiro256 = undefined;
 pub var seed: u64 = 0;
 
-pub fn IteratorOnPosition (comptime array: anytype, comptime curr_len: *usize) type {
+pub fn IteratorOnPosition(comptime array: anytype, comptime curr_len: *usize) type {
     return struct {
         index: usize = 0,
         x: Creature.Position,
