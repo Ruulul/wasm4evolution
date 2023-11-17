@@ -20,7 +20,7 @@ fn setup() void {
     global_state.creatures_len = 0;
     global_state.foods_len = 0;
 
-    for (global_state.creatures[0..100], 0..) |*creature, i| {
+    for (global_state.creatures[0..200], 0..) |*creature, i| {
         const most_fitting_genome_from_previous_generation = 
             if (global_state.most_fitting_genomes[i % global_state.max_fitting_genomes]) |info|
                 info.genome
@@ -35,7 +35,7 @@ fn setup() void {
         creature.energy +|= random.int(u8);
         global_state.creatures_len += 1;
     }
-    for (global_state.foods[0..200]) |*food| {
+    for (global_state.foods[0..100]) |*food| {
         food.* = .{
             .x = random.int(Position),
             .y = random.int(Position)
