@@ -84,7 +84,7 @@ pub fn iterate(self: *Creature) void {
                     fitting_genome.* = fitness_info;
                     break;
                 } else if (fitness_info.fitness == fitting_genome.*.?.fitness and global_state.rand.random().boolean()) {
-                  fitting_genome.* = fitness_info;
+                    fitting_genome.* = fitness_info;
                 }
             }
         }
@@ -174,24 +174,19 @@ fn senses(self: *Creature) void {
 }
 fn act(self: *Creature) void {
     const random = global_state.rand.random();
+    _ = random;
+    self.moves();
     for (self.brain.neurons.slice()) |neuron| {
         switch (neuron.type_tag) {
             .motor => {
                 const neuron_kind: MotorNeuron = @enumFromInt(neuron.type_tag.getNeuronId());
                 switch (neuron_kind) {
-                    .go_x => if (neuron.value != 0 and @abs(neuron.value) < random.float(f32)) {
-                        self.go(Direction.up.rotate(if (neuron.value > 0) @as(i8, 1) else @as(i8, -1)));
-                    },
-                    .go_y => if (neuron.value != 0 and @abs(neuron.value) < random.float(f32)) {
-                        self.go(Direction.right.rotate(if (neuron.value > 0) @as(i8, 1) else @as(i8, -1)));
-                    },
-                    .go_rnd => if (neuron.value > 0 and neuron.value < random.float(f32)) self.go(random.enumValue(Direction)),
-                    .go_fwrd => if (neuron.value > 0 and neuron.value < random.float(f32)) self.go(self.forward),
-                    .eat => if (neuron.value > 0 and neuron.value < random.float(f32)) self.eat(),
-                    .rotate => if (neuron.value > 0 and neuron.value < random.float(f32)) {
+                    .eat => if (neuron.read()) self.eat(),
+                    .rotate => if (neuron.read()) {
                         self.forward = self.forward.rotate(@as(i32, @intFromFloat(neuron.value)));
                     },
-                    .reproduce => if (neuron.value > 0 and neuron.value < random.float(f32)) self.replicates(),
+                    .reproduce => if (neuron.read()) self.replicates(),
+                    inline else => {},
                 }
             },
             inline else => {},
@@ -208,6 +203,43 @@ fn eat(self: *Creature) void {
         global_state.foods[i] = global_state.foods[global_state.foods_len - 1];
         global_state.foods_len -= 1;
     }
+}
+fn moves(self: *Creature) void {
+    const random = global_state.rand.random();
+    var strongest_move: f32 = 0;
+    var strongest_direction: Direction = undefined;
+    for (self.brain.neurons.slice()) |neuron| {
+        switch (neuron.type_tag) {
+            .motor => {
+                const neuron_kind: MotorNeuron = @enumFromInt(neuron.type_tag.getNeuronId());
+                switch (neuron_kind) {
+                    .go_x => if (neuron.value != 0 and @abs(neuron.value) < random.float(f32)) {
+                        if (strongest_move > @abs(neuron.value)) continue;
+                        strongest_move = @abs(neuron.value);
+                        strongest_direction = Direction.up.rotate(if (neuron.value > 0) @as(i8, 1) else @as(i8, -1));
+                    },
+                    .go_y => if (neuron.value != 0 and @abs(neuron.value) < random.float(f32)) {
+                        if (strongest_move > @abs(neuron.value)) continue;
+                        strongest_move = @abs(neuron.value);
+                        strongest_direction = Direction.right.rotate(if (neuron.value > 0) @as(i8, 1) else @as(i8, -1));
+                    },
+                    .go_rnd => if (neuron.read()) {
+                        if (strongest_move > neuron.value) continue;
+                        strongest_move = neuron.value;
+                        strongest_direction = random.enumValue(Direction);
+                    },
+                    .go_fwrd => if (neuron.read()) {
+                        if (strongest_move > neuron.value) continue;
+                        strongest_move = neuron.value;
+                        strongest_direction = self.forward;
+                    },
+                    inline else => {},
+                }
+            },
+            inline else => {},
+        }
+    }
+    if (strongest_move > 0) self.go(strongest_direction);
 }
 fn replicates(self: *Creature) void {
     const random = global_state.rand.random();

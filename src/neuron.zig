@@ -1,5 +1,6 @@
 const activateFn = @import("std").math.tanh;
 const config = @import("config.zig");
+const global_state = @import("global_state.zig");
 
 fn nOfTags(comptime T: type) usize {
     return switch (@typeInfo(T)) {
@@ -43,6 +44,9 @@ pub const Neuron = struct {
     pub fn activate(neuron: *Neuron) void {
         neuron.value = activateFn(neuron.input);
         neuron.input = 0;
+    }
+    pub fn read(neuron: Neuron) bool {
+        return neuron.value > 0 and neuron.value < global_state.rand.random().float(f32);
     }
 };
 pub const SensorNeuron = enum(u8) {
