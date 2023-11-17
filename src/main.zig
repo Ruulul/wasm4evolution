@@ -7,7 +7,7 @@ const mutates = genome_file.mutates;
 const Position = Creature.Position;
 
 const global_state = @import("global_state.zig");
-const fps = 12;
+const fps = global_state.fps;
 
 var started: bool = false;
 
