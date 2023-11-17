@@ -7,7 +7,7 @@ const MotorNeuron = neuron_file.MotorNeuron;
 const genome_file = @import("genome.zig");
 const Genome = genome_file.Genome;
 
-const global_state = @import("main.zig");
+const global_state = @import("global_state.zig");
 const max_entities = global_state.max_entity_count;
 const foods = &global_state.foods;
 const foods_len = &global_state.foods_len;
