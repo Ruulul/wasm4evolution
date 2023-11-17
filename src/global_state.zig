@@ -3,7 +3,7 @@ const Genome = @import("genome.zig").Genome;
 pub const Creature = @import("Creature.zig");
 pub const Position = Creature.Position;
 
-pub const max_entity_count = 300;
+pub const max_entity_count = 250;
 pub const Creatures = [max_entity_count]Creature;
 pub const Food = struct {
     x: Position,
@@ -11,8 +11,6 @@ pub const Food = struct {
 };
 pub const Foods  = [max_entity_count]Food;
 
-pub var global_buffer: [30_000]u8 = undefined;
-pub var fba: std.heap.FixedBufferAllocator = std.heap.FixedBufferAllocator.init(&global_buffer);
 pub var creatures: Creatures = undefined;
 pub var creatures_len: usize = 0;
 pub var foods: Foods = undefined;
@@ -22,7 +20,7 @@ pub const GenomeWithFitness = struct {
     genome: Genome,
     fitness: u64,
 };
-pub const max_fitting_genomes = 10;
+pub const max_fitting_genomes = 20;
 pub var most_fitting_genomes = [_]?GenomeWithFitness{ null} ** max_fitting_genomes;
 pub var most_fitting_genomes_len: usize = 0;
 

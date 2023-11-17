@@ -20,7 +20,7 @@ fn setup() void {
     global_state.creatures_len = 0;
     global_state.foods_len = 0;
 
-    for (global_state.creatures[0..200], 0..) |*creature, i| {
+    for (global_state.creatures[0..100], 0..) |*creature, i| {
         const most_fitting_genome_from_previous_generation = 
             if (global_state.most_fitting_genomes[i % global_state.max_fitting_genomes]) |info|
                 info.genome
@@ -65,13 +65,19 @@ export fn update() void {
             if (global_state.seed % (60 / fps) == 0) global_state.creatures[i].iterate(global_state.rand.random());
             if (global_state.creatures[i].energy == 0) {
                 const dead = global_state.creatures[i];
-                global_state.creatures[i] = global_state.creatures[global_state.creatures_len - 1];
-                global_state.creatures_len -= 1;
-                global_state.foods[global_state.foods_len] = .{
+                const dead_body = global_state.Food{
                     .x = dead.x,
                     .y = dead.y,
                 };
-                global_state.foods_len += 1;
+                global_state.creatures[i] = global_state.creatures[global_state.creatures_len - 1];
+                global_state.creatures_len -= 1;
+                if (global_state.foods_len < global_state.max_entity_count) {
+                    global_state.foods[global_state.foods_len] = dead_body;
+                    global_state.foods_len += 1;
+                } else {
+                    const index = global_state.rand.random().uintAtMost(usize, global_state.max_entity_count - 1);
+                    global_state.foods[index] = dead_body;
+                }
                 continue;
             }
             i += 1;

@@ -51,7 +51,7 @@ pub const Direction = enum {
 
 x: Position = undefined,
 y: Position = undefined,
-energy: u8 = 100,
+energy: u8 = 200,
 forward: Direction = .right,
 genome: Genome = undefined,
 iterations: u32 = 0,
@@ -184,7 +184,7 @@ fn act(self: *Creature, random: std.rand.Random) void {
             var iterator = IterateOnFood.init(self.x, self.y);
             while (iterator.next()) |i| {
               self.chomps += 1;
-              self.energy += 50;
+              self.energy += 10;
               global_state.foods[i] = global_state.foods[global_state.foods_len - 1];
               global_state.foods_len -= 1;
             }
@@ -198,12 +198,13 @@ fn act(self: *Creature, random: std.rand.Random) void {
   }
 }
 fn replicates(self: *Creature, random: std.rand.Random) void {
-  if (global_state.creatures_len == global_state.max_entity_count) return w4.trace("failed to reproduce");
+  if (global_state.creatures_len == global_state.max_entity_count) return;
   self.energy /= 2;
   var self_copy = genome_file.mutates(self.genome, random);
   var creature = Creature.init(self.x, self.y, self_copy);
   creature.go(random.enumValue(Direction));
   global_state.creatures[global_state.creatures_len] = creature;
+  global_state.creatures_len += 1;
 }
 fn go(self: *Creature, direction: Direction) void {
   switch (direction) {
