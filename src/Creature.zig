@@ -8,13 +8,8 @@ const genome_file = @import("genome.zig");
 const Genome = genome_file.Genome;
 
 const global_state = @import("global_state.zig");
-const max_entities = global_state.max_entity_count;
-const foods = &global_state.foods;
-const foods_len = &global_state.foods_len;
-const creatures = &global_state.creatures;
-const creatures_len = &global_state.creatures_len;
-const IterateOnPosition= global_state.IteratorOnPosition;
-const IterateOnFood = IterateOnPosition(foods, foods_len);
+const IterateOnPosition = global_state.IteratorOnPosition;
+const IterateOnFood = IterateOnPosition(&global_state.foods, &global_state.foods_len);
 
 pub const Creature = @This();
 pub const Position = u7;
@@ -59,6 +54,7 @@ y: Position = undefined,
 energy: u8 = 100,
 forward: Direction = .right,
 genome: Genome = undefined,
+iterations: u32 = 0,
 brain: Brain = undefined,
 
 
@@ -72,12 +68,10 @@ pub fn init(x: Position, y: Position, genome: Genome) Creature {
 }
 pub fn iterate(self: *Creature, random: std.rand.Random) void {
   self.energy -|= 1;
+  self.iterations +|= 1;
   if (self.energy == 0) {
-    if (random.boolean()) {
-      self.energy = 200;
-      self.replicates(random);
-      self.energy = 0;
-    }
+    const index = @intFromPtr(self) - @intFromPtr(&global_state.creatures);
+    _ = index;
     return;
   }
   self.senses(random);
@@ -171,8 +165,8 @@ fn act(self: *Creature, random: std.rand.Random) void {
             var iterator = IterateOnFood.init(self.x, self.y);
             while (iterator.next()) |i| {
               self.energy += 50;
-              foods[i] = foods[foods_len.* - 1];
-              foods_len.* -= 1;
+              global_state.foods[i] = global_state.foods[global_state.foods_len - 1];
+              global_state.foods_len -= 1;
             }
           },
           .rotate => self.forward = self.forward.rotate(@as(i32, @intFromFloat(neuron.value))),
@@ -184,7 +178,7 @@ fn act(self: *Creature, random: std.rand.Random) void {
   }
 }
 fn replicates(self: *Creature, random: std.rand.Random) void {
-  if (creatures_len.* == max_entities) return w4.trace("failed to reproduce");
+  if (global_state.creatures_len == global_state.max_entity_count) return w4.trace("failed to reproduce");
   self.energy /= 2;
   var self_copy = self.genome;
   for (&self_copy) |*gene| {
@@ -199,7 +193,7 @@ fn replicates(self: *Creature, random: std.rand.Random) void {
   }
   var creature = Creature.init(self.x, self.y, self_copy);
   creature.go(random.enumValue(Direction));
-  creatures[creatures_len.*] = creature;
+  global_state.creatures[global_state.creatures_len] = creature;
 }
 fn go(self: *Creature, direction: Direction) void {
   switch (direction) {
