@@ -205,7 +205,6 @@ fn act(self: *Creature) void {
 fn eat(self: *Creature) void {
     var iterator = IterateOnFood.init(self.x, self.y);
     if (iterator.peek()) |_| {
-        w4.trace("chomp");
         self.energy +|= global_state.food_energy;
         self.chomps += 1;
     }
