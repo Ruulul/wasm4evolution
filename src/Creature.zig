@@ -118,15 +118,15 @@ fn senses(self: *Creature) void {
                     x: Position,
                     y: Position,
                 }{ .x = self.x, .y = self.y };
-                for (1..10) |distance| {
-                    var iterator = IterateOnFood.init(position.x, position.y);
-                    if (iterator.next()) |_| break :blk 1.0 / @as(f32, @floatFromInt(distance));
-                    switch (self.forward) {
+                for (1..global_state.fov + 1) |distance| {
+                  switch (self.forward) {
                         .up => position.y -%= 1,
                         .down => position.y +%= 1,
                         .right => position.x +%= 1,
                         .left => position.x -%= 1,
                     }
+                    var iterator = IterateOnFood.init(position.x, position.y);
+                    if (iterator.next()) |_| break :blk 1.0 / @as(f32, @floatFromInt(distance));
                 }
                 break :blk 0;
             },
@@ -137,29 +137,28 @@ fn senses(self: *Creature) void {
                 } = undefined;
                 const from_left = blk_left: {
                     position = .{ .x = self.x, .y = self.y };
-                    for (1..10) |distance| {
-                        var iterator = IterateOnFood.init(position.x, position.y);
-                        if (iterator.next()) |_| break :blk_left 1.0 / @as(f32, @floatFromInt(distance));
+                    for (1..global_state.fov + 1) |distance| {
                         switch (self.forward.rotate(-1)) {
                             .up => position.y -%= 1,
                             .down => position.y +%= 1,
                             .right => position.x +%= 1,
                             .left => position.x -%= 1,
-                        }
+                        }                        var iterator = IterateOnFood.init(position.x, position.y);
+                        if (iterator.next()) |_| break :blk_left 1.0 / @as(f32, @floatFromInt(distance));
                     }
                     break :blk_left 0;
                 };
                 const from_right = blk_right: {
                     position = .{ .x = self.x, .y = self.y };
                     for (1..10) |distance| {
-                        var iterator = IterateOnFood.init(position.x, position.y);
-                        if (iterator.next()) |_| break :blk_right 1.0 / @as(f32, @floatFromInt(distance));
                         switch (self.forward.rotate(1)) {
                             .up => position.y -%= 1,
                             .down => position.y +%= 1,
                             .right => position.x +%= 1,
                             .left => position.x -%= 1,
                         }
+                        var iterator = IterateOnFood.init(position.x, position.y);
+                        if (iterator.next()) |_| break :blk_right 1.0 / @as(f32, @floatFromInt(distance));
                     }
                     break :blk_right 0;
                 };

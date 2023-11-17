@@ -18,3 +18,5 @@ pub const chomps_to_be_selected = 2;
 /// currently in frames instead of iterations
 pub const spawn_food_interval = 25;
 pub const fps = 60;
+
+pub const fov = 10;
