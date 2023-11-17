@@ -91,6 +91,13 @@ pub fn iterate(self: *Creature) void {
     }
     if (self.energy == 0) {
         const self_index = self.index();
+        if (global_state.foods_len < global_state.max_food_count) {
+            global_state.foods[global_state.foods_len] = .{
+                .x = self.x,
+                .y = self.y,
+            };
+            global_state.foods_len += 1;
+        }
         global_state.creatures[self_index] = global_state.creatures[global_state.creatures_len - 1];
         global_state.creatures_len -= 1;
         return if (global_state.creatures_len > 0) global_state.creatures[self_index].iterate();
