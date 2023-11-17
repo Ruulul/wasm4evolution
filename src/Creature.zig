@@ -155,7 +155,7 @@ fn act(self: *Creature) void {
                 const neuron_kind: MotorNeuron = @enumFromInt(neuron.type_tag.getNeuronId());
                 switch (neuron_kind) {
                     .eat => if (neuron.read()) self.eat(),
-                    .rotate => if (neuron.read()) {
+                    .rotate => if (neuron.readAbs()) {
                         self.forward = self.forward.rotate(@as(i32, @intFromFloat(neuron.value)));
                     },
                     .reproduce => if (neuron.read()) self.replicates(),
