@@ -1,16 +1,19 @@
 const w4 = @import("wasm4.zig");
 const std = @import("std");
 const Brain = @import("Brain.zig");
-const SensorNeuron = @import("neuron.zig").SensorNeuron;
-const MotorNeuron = @import("neuron.zig").MotorNeuron;
-const Genome = @import("genome.zig").Genome;
+const neuron_file = @import("neuron.zig");
+const SensorNeuron = neuron_file.SensorNeuron;
+const MotorNeuron = neuron_file.MotorNeuron;
+const genome_file = @import("genome.zig");
+const Genome = genome_file.Genome;
 
-const max_entities = @import("main.zig").max_entity_count;
-const foods = &@import("main.zig").foods;
-const foods_len = &@import("main.zig").foods_len;
-const creatures = &@import("main.zig").creatures;
-const creatures_len = &@import("main.zig").creatures_len;
-const IterateOnPosition= @import("main.zig").IteratorOnPosition;
+const global_state = @import("main.zig");
+const max_entities = global_state.max_entity_count;
+const foods = &global_state.foods;
+const foods_len = &global_state.foods_len;
+const creatures = &global_state.creatures;
+const creatures_len = &global_state.creatures_len;
+const IterateOnPosition= global_state.IteratorOnPosition;
 const IterateOnFood = IterateOnPosition(foods, foods_len);
 
 pub const Creature = @This();
