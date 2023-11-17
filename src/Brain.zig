@@ -1,16 +1,16 @@
 const std = @import("std");
+const config = @import("config.zig");
 const genome_file = @import("genome.zig");
 const Genome = genome_file.Genome;
-const genome_length = genome_file.genome_length;
 const getGeneInfo = genome_file.getInfo;
 const neuron_file = @import("neuron.zig");
 const Neuron = neuron_file.Neuron;
 const Synapse = neuron_file.Synapse;
 
 const Brain = @This();
-const Neurons = std.BoundedArray(Neuron, genome_length * 2);
+const Neurons = std.BoundedArray(Neuron, config.genome_length * 2);
 neurons: Neurons = undefined,
-synapses: [genome_length]Synapse = undefined,
+synapses: [config.genome_length]Synapse = undefined,
 pub fn init(genome: Genome) Brain {
   var self: Brain = .{};
   self.neurons = Neurons.init(0) catch unreachable;

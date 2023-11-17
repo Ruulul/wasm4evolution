@@ -1,8 +1,8 @@
 const std = @import("std");
+const config = @import("config.zig");
 const TypeTag = @import("neuron.zig").Neuron.TypeTag;
 pub const Gene = [3]i8;
-pub const genome_length = 4;
-pub const Genome = [genome_length]Gene;
+pub const Genome = [config.genome_length]Gene;
 
 pub fn getRandomGenome(random: std.rand.Random) Genome {
   var dna: Genome = undefined;

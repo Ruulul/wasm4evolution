@@ -1,6 +1,5 @@
 const activateFn = @import("std").math.tanh;
-
-pub const intern_neurons_max = 5;
+const config = @import("config.zig");
 
 fn nOfTags(comptime T: type) usize {
   return switch (@typeInfo(T)) {
@@ -34,7 +33,7 @@ pub const Neuron = struct {
   };
   pub const TypeCount = struct {
     pub const sensor = SensorNeuron.count;
-    pub const intern = intern_neurons_max;
+    pub const intern = config.intern_neurons_max;
     pub const motor = MotorNeuron.count;
   };
   value: f32 = 0,

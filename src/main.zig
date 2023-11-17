@@ -71,11 +71,11 @@ export fn update() void {
                 };
                 global_state.creatures[i] = global_state.creatures[global_state.creatures_len - 1];
                 global_state.creatures_len -= 1;
-                if (global_state.foods_len < global_state.max_entity_count) {
+                if (global_state.foods_len < global_state.max_food_count) {
                     global_state.foods[global_state.foods_len] = dead_body;
                     global_state.foods_len += 1;
                 } else {
-                    const index = global_state.rand.random().uintAtMost(usize, global_state.max_entity_count - 1);
+                    const index = global_state.rand.random().uintAtMost(usize, global_state.max_food_count - 1);
                     global_state.foods[index] = dead_body;
                 }
                 continue;

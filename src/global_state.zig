@@ -1,15 +1,16 @@
 const std = @import("std");
+const config = @import("config.zig");
+pub usingnamespace config;
 const Genome = @import("genome.zig").Genome;
 pub const Creature = @import("Creature.zig");
 pub const Position = Creature.Position;
 
-pub const max_entity_count = 250;
-pub const Creatures = [max_entity_count]Creature;
+pub const Creatures = [config.max_creature_count]Creature;
 pub const Food = struct {
     x: Position,
     y: Position,
 };
-pub const Foods  = [max_entity_count]Food;
+pub const Foods  = [config.max_food_count]Food;
 
 pub var creatures: Creatures = undefined;
 pub var creatures_len: usize = 0;
@@ -20,8 +21,7 @@ pub const GenomeWithFitness = struct {
     genome: Genome,
     fitness: u64,
 };
-pub const max_fitting_genomes = 20;
-pub var most_fitting_genomes = [_]?GenomeWithFitness{ null} ** max_fitting_genomes;
+pub var most_fitting_genomes = [_]?GenomeWithFitness{ null} ** config.max_fitting_genomes;
 pub var most_fitting_genomes_len: usize = 0;
 
 pub var rand: std.rand.Xoshiro256 = undefined;

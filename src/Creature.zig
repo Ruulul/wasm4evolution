@@ -1,5 +1,6 @@
 const w4 = @import("wasm4.zig");
 const std = @import("std");
+const config = @import("config.zig");
 const Brain = @import("Brain.zig");
 const neuron_file = @import("neuron.zig");
 const SensorNeuron = neuron_file.SensorNeuron;
@@ -51,7 +52,7 @@ pub const Direction = enum {
 
 x: Position = undefined,
 y: Position = undefined,
-energy: u8 = 200,
+energy: u8 = config.initial_energy,
 forward: Direction = .right,
 genome: Genome = undefined,
 iterations: u32 = 0,
@@ -69,9 +70,9 @@ pub fn init(x: Position, y: Position, genome: Genome) Creature {
   return self;
 }
 pub fn iterate(self: *Creature, random: std.rand.Random) void {
-  self.energy -|= 1;
+  self.energy -|= config.energy_loss_per_iteration;
   self.iterations +|= 1;
-  if (self.energy == 0 and self.chomps > 2) {
+  if (self.energy == 0 and self.chomps > config.chomps_to_be_selected) {
     const fitness_info = global_state.GenomeWithFitness{
       .fitness = self.iterations,
       .genome = self.genome,
@@ -187,7 +188,7 @@ fn act(self: *Creature, random: std.rand.Random) void {
           .eat =>  if (neuron.value > 0 and neuron.value < random.float(f32)) {
             var iterator = IterateOnFood.init(self.x, self.y);
             if (iterator.peek()) |_| {
-              self.energy += 10;
+              self.energy += config.food_energy;
               self.chomps += 1;
             }
             while (iterator.next()) |i| {
@@ -206,7 +207,7 @@ fn act(self: *Creature, random: std.rand.Random) void {
   }
 }
 fn replicates(self: *Creature, random: std.rand.Random) void {
-  if (global_state.creatures_len == global_state.max_entity_count) return;
+  if (global_state.creatures_len == global_state.max_creature_count) return;
   self.energy = self.energy / 2;
   var self_copy = genome_file.mutates(self.genome, random);
   var creature = self.*;
