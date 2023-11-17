@@ -1,6 +1,5 @@
 const w4 = @import("wasm4.zig");
 const std = @import("std");
-const config = @import("config.zig");
 const Brain = @import("Brain.zig");
 const neuron_file = @import("neuron.zig");
 const SensorNeuron = neuron_file.SensorNeuron;
@@ -52,7 +51,7 @@ pub const Direction = enum {
 
 x: Position = undefined,
 y: Position = undefined,
-energy: u8 = config.initial_energy,
+energy: u8 = global_state.initial_energy,
 forward: Direction = .right,
 genome: Genome = undefined,
 iterations: u32 = 0,
@@ -69,10 +68,11 @@ pub fn init(x: Position, y: Position, genome: Genome) Creature {
   self.forward = global_state.rand.random().enumValue(Direction);
   return self;
 }
-pub fn iterate(self: *Creature, random: std.rand.Random) void {
-  self.energy -|= config.energy_loss_per_iteration;
+pub fn iterate(self: *Creature) void {
+  const random = global_state.rand.random();
+  self.energy -|= global_state.energy_loss_per_iteration;
   self.iterations +|= 1;
-  if (self.energy == 0 and self.chomps > config.chomps_to_be_selected) {
+  if (self.energy == 0 and self.chomps > global_state.chomps_to_be_selected) {
     const fitness_info = global_state.GenomeWithFitness{
       .fitness = self.iterations,
       .genome = self.genome,
@@ -93,12 +93,17 @@ pub fn iterate(self: *Creature, random: std.rand.Random) void {
       }
     }
   }
-  if (self.energy == 0) return;
-  self.senses(random);
+  if (self.energy == 0) {
+    global_state.creatures[self.index()] = global_state.creatures[global_state.creatures_len - 1];
+    global_state.creatures_len -= 1;
+    return self.iterate();
+  }
+  self.senses();
   self.brain.think();
-  self.act(random);
+  self.act();
 }
-fn senses(self: *Creature, random: std.rand.Random) void {
+fn senses(self: *Creature) void {
+  const random = global_state.rand.random();
   for (self.brain.neurons.slice()) |*neuron| {
     if (neuron.type_tag != .sensor) continue;
     neuron.value = switch (@as(SensorNeuron, @enumFromInt(neuron.type_tag.getNeuronId()))) {
@@ -171,7 +176,8 @@ fn senses(self: *Creature, random: std.rand.Random) void {
     };
   }
 }
-fn act(self: *Creature, random: std.rand.Random) void {
+fn act(self: *Creature) void {
+  const random = global_state.rand.random();
   for (self.brain.neurons.slice()) |neuron| {
     switch (neuron.type_tag) {
       .motor => {
@@ -185,40 +191,43 @@ fn act(self: *Creature, random: std.rand.Random) void {
           },
           .go_rnd =>  if (neuron.value > 0 and neuron.value < random.float(f32)) self.go(random.enumValue(Direction)),
           .go_fwrd =>  if (neuron.value > 0 and neuron.value < random.float(f32)) self.go(self.forward),
-          .eat =>  if (neuron.value > 0 and neuron.value < random.float(f32)) {
-            var iterator = IterateOnFood.init(self.x, self.y);
-            if (iterator.peek()) |_| {
-              self.energy += config.food_energy;
-              self.chomps += 1;
-            }
-            while (iterator.next()) |i| {
-              global_state.foods[i] = global_state.foods[global_state.foods_len - 1];
-              global_state.foods_len -= 1;
-            }
-          },
+          .eat =>  if (neuron.value > 0 and neuron.value < random.float(f32)) self.eat(),
           .rotate => if (neuron.value > 0 and neuron.value < random.float(f32)) {
             self.forward = self.forward.rotate(@as(i32, @intFromFloat(neuron.value)));
           },
-          .reproduce => if (neuron.value > 0 and neuron.value < random.float(f32)) self.replicates(random)
+          .reproduce => if (neuron.value > 0 and neuron.value < random.float(f32)) self.replicates()
         }
       },
       inline else => {}
     }
   }
 }
-fn replicates(self: *Creature, random: std.rand.Random) void {
+fn eat(self: *Creature) void {
+  var iterator = IterateOnFood.init(self.x, self.y);
+  if (iterator.peek()) |_| {
+    w4.trace("chomp");
+    self.energy +|= global_state.food_energy;
+    self.chomps += 1;
+  }
+  while (iterator.next()) |i| {
+    global_state.foods[i] = global_state.foods[global_state.foods_len - 1];
+    global_state.foods_len -= 1;
+  }
+}
+fn replicates(self: *Creature) void {
+  const random = global_state.rand.random();
   if (global_state.creatures_len == global_state.max_creature_count) return;
-  self.energy = self.energy / 2;
+  self.energy = self.energy / 2 - global_state.energy_loss_per_replication;
   var self_copy = genome_file.mutates(self.genome, random);
-  var creature = self.*;
-  creature.genome = self_copy;
-  creature.forward = creature.forward.rotate(random.int(i8));
-  creature.go(creature.forward);
-  global_state.creatures[global_state.creatures_len] = creature;
+  var offspring = self.*;
+  offspring.genome = self_copy;
+  offspring.forward = offspring.forward.rotate(random.int(i8));
+  offspring.go(offspring.forward);
+  global_state.creatures[global_state.creatures_len] = offspring;
   global_state.creatures_len += 1;
 }
 fn go(self: *Creature, direction: Direction) void {
-  self.energy -= 1;
+  self.energy -|= global_state.energy_loss_per_movement;
   switch (direction) {
     .down => self.y +%= 1,
     .up => self.y -%= 1,
@@ -226,4 +235,7 @@ fn go(self: *Creature, direction: Direction) void {
     .left => self.x -%= 1,
   }
   self.forward = direction;
+}
+fn index(self: *const Creature) usize {
+  return (@intFromPtr(self) - @intFromPtr(global_state.creatures[0..])) / @sizeOf(Creature);
 }
