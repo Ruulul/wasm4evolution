@@ -84,6 +84,8 @@ pub fn iterate(self: *Creature) void {
                 if (fitness_info.fitness > fitting_genome.*.?.fitness) {
                     fitting_genome.* = fitness_info;
                     break;
+                } else if (fitness_info.fitness == fitting_genome.*.?.fitness and global_state.rand.random().boolean()) {
+                  fitting_genome.* = fitness_info;
                 }
             } else w4.print(0, "but creature {} wasnt selected", .{self.index()});
         }
