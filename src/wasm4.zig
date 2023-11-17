@@ -141,13 +141,31 @@ extern fn traceUtf8(strPtr: [*]const u8, strLen: usize) void;
 /// alternatives.
 pub extern fn tracef(x: [*:0]const u8, ...) void;
 
-/// TODO: slice the buffer to the final printed size;
-pub fn print(comptime max_len: usize, comptime fmt: []const u8, args: anytype) void {
-  var str: [max_len]u8 = undefined;
+/// zig powered formatted print with type safety at compile time.
+/// `extra_len` specifies how many characteres you will need at most, on addition to the format string length
+/// 
+/// look at `std.fmt.format` to see all format options available.
+/// common formatting types:
+/// - {}: default formatting (numbers and bools)
+/// - {any}: default debug formatting (tuples, arrays, struct)
+/// - {s}: format slice as string
+/// - {d}: format number as decimal
+/// - {x}: format number as hexadecimal
+/// - {b}: format number as binary
+/// - {d:0>8.2}: format number as decimal with 2 digits of precision, and align to the right
+/// 
+/// on custom types, you can specify a function in the format
+/// ```
+/// pub fn format(value: ?, comptime fmt: []const u8, options: std.fmt.FormatOptions, writer: anytype) !void
+/// ```
+/// where ? is the custom type.
+pub fn print(comptime extra_len: usize, comptime fmt: []const u8, args: anytype) void {
+  var str = [_]u8{ 0 } ** (fmt.len + extra_len);
   var stream = std.io.fixedBufferStream(&str);
   const writer = stream.writer();
-  writer.print(fmt, args) catch {
+  writer.print(fmt, args) catch |err| {
     trace("failed to print:");
+    trace(@errorName(err));
     trace(fmt);
   };
   trace(&str);
