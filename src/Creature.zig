@@ -178,10 +178,10 @@ fn act(self: *Creature, random: std.rand.Random) void {
         const neuron_kind: MotorNeuron = @enumFromInt(neuron.type_tag.getNeuronId());
         switch (neuron_kind) {
           .go_x =>  if (neuron.value != 0 and @abs(neuron.value) < random.float(f32)) {
-            self.x +%= @intFromFloat(std.math.sign(neuron.value)); 
+            self.go(Direction.up.rotate( if (neuron.value > 0) @as(i8, 1) else @as(i8, -1)));
           },
           .go_y =>  if (neuron.value != 0 and @abs(neuron.value) < random.float(f32)) {
-            self.y +%= @intFromFloat(std.math.sign(neuron.value)); 
+            self.go(Direction.right.rotate( if (neuron.value > 0) @as(i8, 1) else @as(i8, -1)));
           },
           .go_rnd =>  if (neuron.value > 0 and neuron.value < random.float(f32)) self.go(random.enumValue(Direction)),
           .go_fwrd =>  if (neuron.value > 0 and neuron.value < random.float(f32)) self.go(self.forward),
@@ -218,6 +218,7 @@ fn replicates(self: *Creature, random: std.rand.Random) void {
   global_state.creatures_len += 1;
 }
 fn go(self: *Creature, direction: Direction) void {
+  self.energy -= 1;
   switch (direction) {
     .down => self.y +%= 1,
     .up => self.y -%= 1,
