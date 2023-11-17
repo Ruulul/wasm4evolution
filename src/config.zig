@@ -3,7 +3,7 @@ pub const max_food_count = 200;
 
 pub const max_fitting_genomes = 20;
 
-pub const genome_length = 6;
+pub const genome_length = 12;
 pub const intern_neurons_max = 5;
 
 pub const initial_energy = 200;

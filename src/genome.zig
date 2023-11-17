@@ -16,7 +16,7 @@ pub fn mutates(original: Genome, random: std.rand.Random) Genome {
       const synapse = random.uintLessThan(usize, 3);
       const bit_to_fuzzle = random.uintAtMost(u3, 7);
       const bit_mask = @as(i8, 1) << bit_to_fuzzle;
-      if (gene[synapse] & bit_mask != 0) 
+      if (gene[synapse] & bit_mask == 0) 
         gene[synapse] |= bit_mask
       else gene[synapse] &= ~bit_mask;
     }
