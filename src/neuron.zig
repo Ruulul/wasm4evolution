@@ -48,6 +48,9 @@ pub const Neuron = struct {
     pub fn read(neuron: Neuron) bool {
         return neuron.value > 0 and neuron.value < global_state.rand.random().float(f32);
     }
+    pub fn readAbs(neuron: Neuron) bool {
+        return neuron.value != 0 and @abs(neuron.value) < global_state.rand.random().float(f32);
+    }
 };
 pub const SensorNeuron = enum(u8) {
     pos_x,

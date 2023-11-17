@@ -213,12 +213,12 @@ fn moves(self: *Creature) void {
             .motor => {
                 const neuron_kind: MotorNeuron = @enumFromInt(neuron.type_tag.getNeuronId());
                 switch (neuron_kind) {
-                    .go_x => if (neuron.value != 0 and @abs(neuron.value) < random.float(f32)) {
+                    .go_x => if (neuron.readAbs()) {
                         if (strongest_move > @abs(neuron.value)) continue;
                         strongest_move = @abs(neuron.value);
                         strongest_direction = Direction.up.rotate(if (neuron.value > 0) @as(i8, 1) else @as(i8, -1));
                     },
-                    .go_y => if (neuron.value != 0 and @abs(neuron.value) < random.float(f32)) {
+                    .go_y => if (neuron.readAbs()) {
                         if (strongest_move > @abs(neuron.value)) continue;
                         strongest_move = @abs(neuron.value);
                         strongest_direction = Direction.right.rotate(if (neuron.value > 0) @as(i8, 1) else @as(i8, -1));
