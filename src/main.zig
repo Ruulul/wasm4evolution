@@ -10,10 +10,12 @@ const global_state = @import("global_state.zig");
 const fps = global_state.fps;
 
 var started: bool = false;
+var generation: usize = 0;
 
 fn setup() void {
     started = true;
-    w4.trace("new generation");
+    generation += 1;
+    w4.print(1, "generation {} with {} genomes in the genome pool", .{ generation, global_state.most_fitting_genomes_len, });
 
     global_state.rand = std.rand.DefaultPrng.init(global_state.seed);
     const random = global_state.rand.random();
