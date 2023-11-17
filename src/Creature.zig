@@ -54,7 +54,7 @@ y: Position = undefined,
 energy: u8 = global_state.initial_energy,
 forward: Direction = .right,
 genome: Genome = undefined,
-iterations: u32 = 0,
+//iterations: u32 = 0,
 chomps: u32 = 0,
 brain: Brain = undefined,
 
@@ -71,10 +71,11 @@ pub fn init(x: Position, y: Position, genome: Genome) Creature {
 pub fn iterate(self: *Creature) void {
   const random = global_state.rand.random();
   self.energy -|= global_state.energy_loss_per_iteration;
-  self.iterations +|= 1;
+  //self.iterations +|= 1;
   if (self.energy == 0 and self.chomps > global_state.chomps_to_be_selected) {
+    w4.print(0, "creature {} met criteria", .{ self.index() });
     const fitness_info = global_state.GenomeWithFitness{
-      .fitness = self.iterations,
+      .fitness = self.chomps,
       .genome = self.genome,
     };
     if (global_state.most_fitting_genomes_len < global_state.max_fitting_genomes) {
@@ -82,21 +83,22 @@ pub fn iterate(self: *Creature) void {
       global_state.most_fitting_genomes_len += 1;
     } else {
       for (&global_state.most_fitting_genomes) |*fitting_genome| {
-        if (self.iterations > fitting_genome.*.?.fitness) {
+        if (fitness_info.fitness > fitting_genome.*.?.fitness) {
           fitting_genome.* = fitness_info;
           break;
         } 
-        if (self.iterations == fitting_genome.*.?.fitness) {
+        if (fitness_info.fitness == fitting_genome.*.?.fitness) {
           if (random.boolean()) fitting_genome.* = fitness_info;
           break;
         } else continue;
-      }
+      } else w4.print(0, "but creature {} wasnt selected", .{ self.index() });
     }
   }
   if (self.energy == 0) {
-    global_state.creatures[self.index()] = global_state.creatures[global_state.creatures_len - 1];
+    const self_index = self.index();
+    global_state.creatures[self_index] = global_state.creatures[global_state.creatures_len - 1];
     global_state.creatures_len -= 1;
-    return self.iterate();
+    return if (global_state.creatures_len > 0) global_state.creatures[self_index].iterate();
   }
   self.senses();
   self.brain.think();
@@ -216,7 +218,9 @@ fn eat(self: *Creature) void {
 }
 fn replicates(self: *Creature) void {
   const random = global_state.rand.random();
+  if (self.energy < std.math.maxInt(@TypeOf(self.energy)) / 2) return;
   if (global_state.creatures_len == global_state.max_creature_count) return;
+  w4.trace("replicatin");
   self.energy = self.energy / 2 - global_state.energy_loss_per_replication;
   var self_copy = genome_file.mutates(self.genome, random);
   var offspring = self.*;
