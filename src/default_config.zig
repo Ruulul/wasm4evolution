@@ -11,6 +11,7 @@ pub const intern_neurons_max = 5;
 pub const mutation_rate = 0.03;
 
 pub const initial_energy = 255;
+pub const energy_loss_per_iteration_divisor = 10;
 pub const energy_loss_per_iteration = 1;
 pub const energy_loss_per_movement = 1;
 pub const energy_loss_per_replication = 10;

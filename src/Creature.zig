@@ -54,7 +54,7 @@ y: Position = undefined,
 energy: u8 = global_state.initial_energy,
 forward: Direction = .right,
 genome: Genome = undefined,
-//iterations: u32 = 0,
+iterations: u32 = 0,
 chomps: u32 = 0,
 brain: Brain = undefined,
 
@@ -68,8 +68,8 @@ pub fn init(x: Position, y: Position, genome: Genome) Creature {
     return self;
 }
 pub fn iterate(self: *Creature) void {
-    self.energy -|= global_state.energy_loss_per_iteration;
-    //self.iterations +|= 1;
+    if (self.iterations % global_state.energy_loss_per_iteration_divisor == 0) self.energy -|= global_state.energy_loss_per_iteration;
+    self.iterations +|= 1;
     if (self.energy == 0 and self.chomps >= global_state.chomps_to_be_selected) {
         const fitness_info = global_state.GenomeWithFitness{
             .fitness = self.chomps,
