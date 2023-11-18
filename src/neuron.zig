@@ -1,6 +1,9 @@
-const activateFn = @import("std").math.tanh;
 const config = @import("config.zig");
 const global_state = @import("global_state.zig");
+
+fn activateFn(value: f32) f32 {
+    return if (value > 0) value else value / 16;
+}
 
 fn nOfTags(comptime T: type) usize {
     return switch (@typeInfo(T)) {
