@@ -54,7 +54,7 @@ y: Position = undefined,
 energy: u8 = global_state.initial_energy,
 forward: Direction = .right,
 genome: Genome = undefined,
-iterations: u32 = 0,
+//iterations: u32 = 0,
 chomps: u32 = 0,
 brain: Brain = undefined,
 
@@ -69,10 +69,10 @@ pub fn init(x: Position, y: Position, genome: Genome) Creature {
 }
 pub fn iterate(self: *Creature) void {
     self.energy -|= global_state.energy_loss_per_iteration;
-    self.iterations +|= 1;
+    //self.iterations +|= 1;
     if (self.energy == 0 and self.chomps >= global_state.chomps_to_be_selected) {
         const fitness_info = global_state.GenomeWithFitness{
-            .fitness = self.iterations,
+            .fitness = self.chomps,
             .genome = self.genome,
         };
         for (global_state.most_fitting_genomes[0..global_state.most_fitting_genomes_len]) |*fitting_genome| {
@@ -81,7 +81,6 @@ pub fn iterate(self: *Creature) void {
                 fitness_info.fitness == genome.fitness and global_state.rand.random().boolean()
                 ) {
                     fitting_genome.* = fitness_info;
-                    global_state.most_fitting_genomes_len += 1;
                     break;
                 } else continue;
             } 
@@ -94,7 +93,7 @@ pub fn iterate(self: *Creature) void {
         }
     }
     if (self.energy == 0) {
-        if (global_state.foods_len < global_state.max_food_count) {
+        if (global_state.dead_bodies and global_state.foods_len < global_state.max_food_count) {
             global_state.foods[global_state.foods_len] = .{
                 .x = self.x,
                 .y = self.y,

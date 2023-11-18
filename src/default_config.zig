@@ -1,11 +1,12 @@
 pub const initial_creature_count = 100;
-pub const max_creature_count = 100;
+pub const max_creature_count = 200;
 pub const initial_food_count = 50;
 pub const max_food_count = 200;
+pub const dead_bodies = false;
 
 pub const max_fitting_genomes = 20;
 
-pub const genome_length = 12;
+pub const genome_length = 5;
 pub const intern_neurons_max = 5;
 pub const mutation_rate = 0.03;
 
