@@ -2,7 +2,7 @@ const std = @import("std");
 
 pub fn build(b: *std.Build) !void {
     const optimize: std.builtin.OptimizeMode = .ReleaseSmall;
-    const run_native = b.option(bool, "native", "define if it runs on native mode (default: true)");
+    const run_native = b.option(bool, "native", "define if it runs on native mode (default: true)") orelse true;
 
     const lib = b.addExecutable(.{
         .name = "cart",
@@ -23,7 +23,7 @@ pub fn build(b: *std.Build) !void {
 
     const run_cmd = b.addSystemCommand(&.{
         "w4",
-        if (run_native orelse true) "run-native" else "run",
+        if (run_native) "run-native" else "run",
         "zig-out/bin/cart.wasm",
     });
     run_cmd.step.dependOn(b.getInstallStep());
