@@ -7,6 +7,7 @@ pub const max_fitting_genomes = 20;
 
 pub const genome_length = 12;
 pub const intern_neurons_max = 5;
+pub const mutation_rate = 0.03;
 
 pub const initial_energy = 255;
 pub const energy_loss_per_iteration = 1;

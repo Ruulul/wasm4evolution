@@ -15,7 +15,7 @@ pub fn randomGene(gene: *Gene, random: std.rand.Random) void {
 pub fn mutates(original: Genome, random: std.rand.Random) Genome {
     var new = original;
     for (&new) |*gene| {
-        if (random.uintLessThan(u8, 100) <= 1) {
+        if (random.float(f32) < config.mutation_rate) {
             const synapse = random.uintLessThan(usize, 3);
             const bit_to_fuzzle = random.uintAtMost(u3, 7);
             const bit_mask = @as(i8, 1) << bit_to_fuzzle;
