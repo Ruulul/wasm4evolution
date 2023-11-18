@@ -49,14 +49,14 @@ export fn update() void {
         w4.draw_colors.* = 0x40;
         w4.rect(-1, -1, 130, 130);
         w4.draw_colors.* = 0x4;
-        w4.text( "Gen", 135, 10);
-        w4.textPrint(1, "{}", 135, 20, .{ generation }) catch {
+        w4.text("Gen", 135, 10);
+        w4.textPrint(1, "{}", 135, 20, .{generation}) catch {
             w4.text("Xe?", 135, 20);
         };
-        w4.textPrint(3, "Current: {} i", 10, 135, .{ iterations / 100 }) catch {
+        w4.textPrint(3, "Current: {} i", 10, 135, .{iterations / 100}) catch {
             w4.text("Current: Infinite!", 10, 130);
         };
-        w4.textPrint(3, "Best: {} i", 10, 145, .{ best_score / 100 }) catch {
+        w4.textPrint(3, "Best: {} i", 10, 145, .{best_score / 100}) catch {
             w4.text("Best: Infinite!", 10, 140);
         };
         w4.draw_colors.* = 0x3;
