@@ -14,7 +14,7 @@ var generation: usize = 0;
 var iterations: u32 = 0;
 var best_score: u32 = 0;
 
-fn setup() void {
+pub fn setup() void {
     if (iterations > best_score) {
         best_score = iterations;
         w4.pallete.* = .{
@@ -65,14 +65,23 @@ fn setup() void {
 
 export fn start() void {}
 
-export fn update() void {
+pub fn loop() void {
     global_state.seed +%= 1;
+    if (global_state.creatures_len == 0) setup();
+    if (global_state.seed % global_state.spawn_food_interval == 0 and
+        global_state.foods_len < global_state.max_food_count) spawnFood();
+    for (global_state.creatures[0..global_state.creatures_len]) |*creature| creature.iterate();
+}
 
+export fn update() void {
     w4.draw_colors.* = 0x2;
     if (!started) {
         w4.text("Press Z to start!", 10, 10);
     } else {
-        if (global_state.creatures_len == 0) setup();
+        if (global_state.seed % fps == 0) {
+            iterations += 1;
+            loop();
+        }
         w4.draw_colors.* = 0x40;
         w4.rect(-1, -1, 130, 130);
         w4.draw_colors.* = 0x4;
@@ -86,20 +95,10 @@ export fn update() void {
         w4.textPrint(3, "Best: {} i", 10, 145, .{ best_score / 1_000 }) catch {
             w4.text("Best: Infinite!", 10, 140);
         };
-        if (global_state.seed % global_state.spawn_food_interval == 0 and
-            global_state.foods_len < global_state.max_food_count) spawnFood();
         w4.draw_colors.* = 0x3;
         for (global_state.foods[0..global_state.foods_len]) |food| w4.rect(food.x, food.y, 1, 1);
         w4.draw_colors.* = 0x2;
-        var i: usize = 0;
-        while (i < global_state.creatures_len) {
-            w4.rect(global_state.creatures[i].x, global_state.creatures[i].y, 1, 1);
-            if (global_state.seed % (60 / fps) == 0) {
-                iterations += 1;
-                global_state.creatures[i].iterate();
-            }
-            i += 1;
-        }
+        for (global_state.creatures[0..global_state.creatures_len]) |creature| w4.rect(creature.x, creature.y, 1, 1);
     }
     if (!started and w4.gamepad_1.* & w4.button_2 != 0) setup();
 }
