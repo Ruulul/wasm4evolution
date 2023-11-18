@@ -75,17 +75,21 @@ pub fn iterate(self: *Creature) void {
             .fitness = self.iterations,
             .genome = self.genome,
         };
-        if (global_state.most_fitting_genomes_len < global_state.max_fitting_genomes) {
-            global_state.most_fitting_genomes[global_state.most_fitting_genomes_len] = fitness_info;
-            global_state.most_fitting_genomes_len += 1;
-        } else {
-            for (&global_state.most_fitting_genomes) |*fitting_genome| {
-                if (fitness_info.fitness > fitting_genome.*.?.fitness) {
+        for (global_state.most_fitting_genomes[0..global_state.most_fitting_genomes_len]) |*fitting_genome| {
+            if (fitting_genome.*) |genome| {
+                if (fitness_info.fitness > genome.fitness or
+                fitness_info.fitness == genome.fitness and global_state.rand.random().boolean()
+                ) {
                     fitting_genome.* = fitness_info;
+                    global_state.most_fitting_genomes_len += 1;
                     break;
-                } else if (fitness_info.fitness == fitting_genome.*.?.fitness and global_state.rand.random().boolean()) {
-                    fitting_genome.* = fitness_info;
-                }
+                } else continue;
+            } 
+            else unreachable;
+        } else {
+            if (global_state.most_fitting_genomes_len < global_state.max_fitting_genomes) {
+                global_state.most_fitting_genomes[global_state.most_fitting_genomes_len] = fitness_info;
+                global_state.most_fitting_genomes_len += 1;
             }
         }
     }

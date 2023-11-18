@@ -15,7 +15,11 @@ pub const Neuron = struct {
         intern: u8,
         motor: u8,
         pub fn getCount(self: TypeTag) u8 {
-            return @field(TypeCount, @tagName(self));
+            return switch (self) {
+                .sensor => TypeCount.sensor,
+                .intern => TypeCount.intern,
+                .motor => TypeCount.motor,
+            };
         }
         pub fn getNeuronId(self: TypeTag) u8 {
             return switch (self) {
