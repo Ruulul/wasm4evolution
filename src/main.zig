@@ -66,19 +66,21 @@ pub fn setup() void {
 export fn start() void {}
 
 pub fn loop() void {
-    global_state.seed +%= 1;
     if (global_state.creatures_len == 0) setup();
     if (global_state.seed % global_state.spawn_food_interval == 0 and
         global_state.foods_len < global_state.max_food_count) spawnFood();
-    for (global_state.creatures[0..global_state.creatures_len]) |*creature| creature.iterate();
+    var i: usize = 0;
+    while (i < global_state.creatures_len) : (i += 1) global_state.creatures[i].iterate();
+    
 }
 
 export fn update() void {
+    global_state.seed +%= 1;
     w4.draw_colors.* = 0x2;
     if (!started) {
         w4.text("Press Z to start!", 10, 10);
     } else {
-        if (global_state.seed % fps == 0) {
+        if (global_state.seed % (60 / fps) == 0) {
             iterations += 1;
             loop();
         }
