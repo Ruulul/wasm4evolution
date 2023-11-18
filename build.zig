@@ -26,6 +26,7 @@ pub fn build(b: *std.Build) !void {
         if (run_native orelse true) "run-native" else "run",
         "zig-out/bin/cart.wasm",
     });
+    run_cmd.step.dependOn(b.getInstallStep());
     
     const run_step = b.step("run", "run the program");
     run_step.dependOn(&run_cmd.step);
