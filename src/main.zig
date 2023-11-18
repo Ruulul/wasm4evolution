@@ -44,7 +44,7 @@ export fn update() void {
     } else {
         if (global_state.seed % (60 / global_state.fps) == 0) {
             iterations += 1;
-            game_logic.loop();
+            game_logic.loop(setup);
         }
         w4.draw_colors.* = 0x40;
         w4.rect(-1, -1, 130, 130);

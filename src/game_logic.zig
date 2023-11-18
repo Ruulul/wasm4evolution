@@ -36,8 +36,8 @@ pub fn setup() void {
     }
 }
 
-pub fn loop() void {
-    if (global_state.creatures_len == 0) setup();
+pub fn loop(extSetup: *const fn () void) void {
+    if (global_state.creatures_len == 0) extSetup();
     if (global_state.seed % global_state.spawn_food_interval == 0 and
         global_state.foods_len < global_state.max_food_count) spawnFood();
     var i: usize = 0;
