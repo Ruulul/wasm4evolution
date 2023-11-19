@@ -38,7 +38,11 @@ pub fn setup() void {
 
 export fn start() void {
     var file = global_state.GameFile{};
-    _ = w4.diskr(@ptrCast(file), @sizeOf(@TypeOf(file)));
+    _ = w4.diskr(@ptrCast(&file), @sizeOf(@TypeOf(file)));
+    for (0..file.count) |i| {
+        global_state.most_fitting_genomes[i] = file.genomes[i];
+    }
+    global_state.most_fitting_genomes_len = file.count;
 }
 
 export fn update() void {
