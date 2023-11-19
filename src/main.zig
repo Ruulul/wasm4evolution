@@ -9,21 +9,23 @@ var generation: usize = 0;
 var iterations: u32 = 0;
 var best_score: u32 = 0;
 
+const rusty_palette = .{
+    0x000000,
+    0x503636,
+    0x9b8b8b,
+    0xffffff,
+}; // https://lospec.com/palette-list/rusty-metal-g
+const cream_palette = .{
+    0x7c3f58,
+    0xeb6b6f,
+    0xf9a875,
+    0xfff6d3,
+}; // https://lospec.com/palette-list/ice-cream-gb
 pub fn setup() void {
     if (iterations > best_score) {
         best_score = iterations;
-        w4.pallete.* = .{
-            0xff8e80,
-            0xc53a9d,
-            0x4a2480,
-            0x051f39,
-        }; // https://lospec.com/palette-list/lava-gb
-    } else w4.pallete.* = .{
-        0xe9efec,
-        0xa0a08b,
-        0x555568,
-        0x211e20,
-    }; // https://lospec.com/palette-list/2bit-demichrome
+        w4.pallete.* = rusty_palette;
+    } else w4.pallete.* = cream_palette;
     iterations = 0;
     started = true;
     generation += 1;
@@ -43,6 +45,7 @@ export fn start() void {
         global_state.most_fitting_genomes[i] = file.genomes[i];
     }
     global_state.most_fitting_genomes_len = file.count;
+    w4.pallete.* = rusty_palette;
 }
 
 export fn update() void {
