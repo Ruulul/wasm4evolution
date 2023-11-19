@@ -31,10 +31,15 @@ pub fn setup() void {
         generation,
         global_state.most_fitting_genomes_len,
     }) catch {};
+    const file = global_state.GameFile.set();
+    _ = w4.diskw(@ptrCast(&file), @sizeOf(@TypeOf(file)));
     game_logic.setup();
 }
 
-export fn start() void {}
+export fn start() void {
+    var file = global_state.GameFile{};
+    _ = w4.diskr(@ptrCast(file), @sizeOf(@TypeOf(file)));
+}
 
 export fn update() void {
     global_state.seed +%= 1;

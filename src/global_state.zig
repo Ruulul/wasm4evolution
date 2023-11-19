@@ -24,6 +24,16 @@ pub const GenomeWithFitness = struct {
 pub var most_fitting_genomes = [_]?GenomeWithFitness{null} ** config.max_fitting_genomes;
 pub var most_fitting_genomes_len: usize = 0;
 
+pub const GameFile = struct {
+    count: usize = 0,
+    genomes: [config.max_fitting_genomes]GenomeWithFitness = undefined,
+    pub fn set() GameFile {
+        var file = GameFile{};
+        for (most_fitting_genomes[0..most_fitting_genomes_len], 0..) |genome, i| file.genomes[i] = genome.?;
+        return file;
+    }
+};
+
 pub var rand: std.rand.Xoshiro256 = undefined;
 pub var seed: u64 = 0;
 
