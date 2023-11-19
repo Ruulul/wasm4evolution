@@ -27,10 +27,16 @@ pub var most_fitting_genomes_len: usize = 0;
 pub const GameFile = struct {
     count: usize = 0,
     genomes: [config.max_fitting_genomes]GenomeWithFitness = undefined,
-    pub fn set() GameFile {
+    pub fn save() GameFile {
         var file = GameFile{};
         for (most_fitting_genomes[0..most_fitting_genomes_len], 0..) |genome, i| file.genomes[i] = genome.?;
         return file;
+    }
+    pub fn load(file: GameFile) void {
+    for (0..file.count) |i| {
+        most_fitting_genomes[i] = file.genomes[i];
+    }
+    most_fitting_genomes_len = file.count;
     }
 };
 

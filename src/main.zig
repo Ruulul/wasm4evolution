@@ -33,7 +33,7 @@ pub fn setup() void {
         generation,
         global_state.most_fitting_genomes_len,
     }) catch {};
-    const file = global_state.GameFile.set();
+    const file = global_state.GameFile.save();
     _ = w4.diskw(@ptrCast(&file), @sizeOf(@TypeOf(file)));
     game_logic.setup();
 }
@@ -41,10 +41,7 @@ pub fn setup() void {
 export fn start() void {
     var file = global_state.GameFile{};
     _ = w4.diskr(@ptrCast(&file), @sizeOf(@TypeOf(file)));
-    for (0..file.count) |i| {
-        global_state.most_fitting_genomes[i] = file.genomes[i];
-    }
-    global_state.most_fitting_genomes_len = file.count;
+    file.load();
     w4.pallete.* = rusty_palette;
 }
 
